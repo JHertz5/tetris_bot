@@ -1,16 +1,24 @@
 #!usr/bin/env python3
-# Model Tetromino as numpy array
+# Model tetromino as numpy array
 
 import numpy as np
-import grid_printer
 
 # Tetromino stored as np array that can be superimposed onto playing field array. This class handles rotations of the tetromino
 
 class Tetromino(object):
 
-    TYPES = [' ', 'I', 'O', 'T', 'S', 'Z', 'J', 'L']
-    TYPE_COLOUR = {} # TODO
-    TYPE_GRID = {
+    SHAPES = ['I', 'O', 'T', 'S', 'Z', 'J', 'L']
+    SHAPE_COLOUR = {} # TODO
+    SHAPE_SPAWN_POSITION = {
+        'I' : (3, 3),
+        'O' : (2, 4),
+        'T' : (2, 3),
+        'S' : (2, 3),
+        'Z' : (2, 3),
+        'J' : (2, 3),
+        'L' : (2, 3)
+    }
+    SHAPE_GRID = {
         'I' : [
                 [1, 1, 1, 1]
             ],
@@ -40,33 +48,89 @@ class Tetromino(object):
             ]
     }
 
-    def __init__(self, letter):
-        if letter.upper() in self.TYPES [1:]:
-            self.grid = np.array( self.TYPE_GRID[ letter.upper() ], dtype=np.uint8 )
+    def __init__(self, shape, rotations=0):
+        if shape.upper() in self.SHAPES:
+            self.grid = np.array(self.SHAPE_GRID[shape.upper()],
+                                 dtype=np.uint8)
         else:
-            raise ValueError('Type {} not recognised'.format(letter))
+            raise ValueError('Type {} not recognised'.format(shape))
+        self.shape = shape
+        assert(rotations < 4)
+        self.rotations = 0
+        self.rotate(rotations)
 
     def __str__(self):
-        return grid_printer.print_grid(self.grid)
+        grid_string = ''
+        if self.grid.ndim == 2:
+            col_strings = []
+            for col in self.grid:
+                col_strings.append( ''.join([str(x) for x in col]) )
+            grid_string = '\n'.join(col_strings)
+        elif self.grid.ndim == 1:
+            grid_string += ''.join(self.grid)
+        else:
+            raise ValueError('Grid must be either 1 or 2 dimensions')
+        return grid_string
 
-    def rotate(self):
-        self.grid = np.rot90(self.grid, 3)
+    def __getitem__(self, key):
+        return self.grid[key]
+
+    def height(self):
+        return self.grid.shape[0]
+
+    def width(self):
+        return self.grid.shape[1]
+
+    def rotate(self, rotations=1):
+        """ Perform 90 degrees clockwise rotations """
+        self.rotations += rotations % 4
+        # np.rot90 does anti-clockwise rotations so negative rotations are
+        # performed
+        self.grid = np.rot90(self.grid, -rotations)
         return self
+
+    def reset_rotations(self):
+        """ Rotate tetronimo back to original position """
+        self.rotate(-self.rotations)
+        return self
+    
+    def spawn_position(self):
+        """ Return spawn position of top left block of tetromino grid. Note that this may be an empty square """
+        return self.SHAPE_SPAWN_POSITION[self.shape]
+
+
+    def flat(self):
+        return self.grid.flat
+    
+    def copy(self):
+        """ Return shallow copy of self """
+        return Tetromino(self.shape,self.rotations)
+
+    def number_of_spaces(self, col):
+        """ Return number of empty spaces from bottom to lowest filled block in specified column  """
+        if col < 0 or col >= self.width():
+            raise ValueError('{} is not 0 <= col < width'.format(col))
+        # get row of lowest filled block in column
+        bottom_block_row = max([i for i,x in enumerate(self.grid[:,col]) if x != 0])
+        return self.height() - bottom_block_row - 1
 
 if __name__ == "__main__":
     tetromino = Tetromino('I')
+    print('({},{})'.format(tetromino.height(),tetromino.width()))
     tetromino.rotate()
-    print('{}'.format(tetromino))
+    print('({},{})'.format(tetromino.height(),tetromino.width()))
+    print('{}\n'.format(tetromino))
     tetromino = Tetromino('O')
-    print('{}'.format(tetromino))
+    print('{}\n'.format(tetromino))
     tetromino = Tetromino('T')
     tetromino.rotate()
-    print('{}'.format(tetromino))
+    print('{}\n'.format(tetromino))
     tetromino = Tetromino('S')
-    print('{}'.format(tetromino))
+    print('{}\n'.format(tetromino))
     tetromino = Tetromino('Z')
-    print('{}'.format(tetromino))
+    print('{}\n'.format(tetromino))
     tetromino = Tetromino('J')
-    print('{}'.format(tetromino))
-    tetromino = Tetromino('L')
-    print('{}'.format(tetromino))
+    print('{}\n'.format(tetromino))
+    tetromino = Tetromino('L', 3)
+    print('{}\n'.format(tetromino))
+    

@@ -2,26 +2,143 @@
 # Model tetris playfield as numpy array
 
 import numpy as np
+import random
 
 from tetromino import Tetromino
-import grid_printer
 
 class Playfield():
+
     HEIGHT = 22
     WIDTH  = 10
 
-    def __init__(self, grid=None):
+    def __init__(self, grid=None, held_tetromino=None):
+        # set up grid
         if grid is not None:
-            assert(type(grid) is np.ndarray)
-            assert(grid.shape == (self.HEIGHT, self.WIDTH))
+            assert(isinstance(grid, np.ndarray))
+            assert( grid.shape == (self.HEIGHT, self.WIDTH) )
             self.grid = np.array( grid, dtype=np.uint8)
         else:
             self.grid = np.zeros((self.HEIGHT, self.WIDTH), dtype=np.uint8)
+        # set up held tetromino
+        if held_tetromino is not None:
+            assert isinstance(tetromino, Tetromino)
+        self.held_tetromino = held_tetromino
 
     def __str__(self):
-        return grid_printer.print_grid(self.grid)
+        print_str  = '  ┌' + '─' * (self.WIDTH * 2 + 1) + '┐\n'
+        for row in range(self.HEIGHT):
+            print_str += ('{:2d}│ '.format(row)
+                          + ' '.join(str(x) for x in self.grid[row, :])
+                          + ' │\n')
+        print_str += '  └' + '─' * (self.WIDTH * 2 + 1) + '┘\n'
+        print_str += '    ' + ' '.join([str(x) for x in range(self.WIDTH)])
+        return print_str
+
+    def test_position(self, tetromino, position):
+        """ Check whether the tetromino is out of bounds or overlapping existing blocks when in the specified position. It is assumed that position specifies the position of the top left block of the tetromino grid (which may be an empty block). """
+        # test whether placement puts tetromino out of bounds
+        if ( position[1] <  0
+             or position[0] < 0
+             or position[1] + tetromino.width() > self.WIDTH
+             or position[0] + tetromino.height() > self.HEIGHT ):
+            return False
+        # test for overlap
+        # get grid area where tetromino would be locked
+        test_grid = self.grid[
+                position[0] : position[0] + tetromino.height(),
+                position[1] : position[1] + tetromino.width()]
+        for test_block, tetr_block in zip(test_grid.flat, tetromino.flat()):
+            if test_block != 0 and tetr_block != 0:
+                return False
+        return True
+
+    def get_drop_row(self, tetromino, start_col):
+        """ Return the row of the top block of the tetromino if the tetromino is dropped with its left side aligned with the specified column """
+        end_col = start_col + tetromino.width()
+        if start_col < 0 or end_col > self.WIDTH:
+            raise ValueError('drop puts tetromino out of bounds}')
+        drop_row = self.HEIGHT # initialise to lowest possible row
+        # for each column, get the drop row ignoring other columns. The highest of these is the final drop row
+        for tetr_col, grid_col in enumerate(range(start_col, end_col)):
+            # 8 appended to column represent floor of playing field
+            col_data = self.grid[:, grid_col].tolist() + [8]
+            # get row number of highest filled row
+            stack_top = min([i for i, x in enumerate(col_data) if x != 0])
+            col_drop_row = ( stack_top
+                             - tetromino.height()
+                             + tetromino.number_of_spaces(tetr_col))
+            # keep highest row, other drop rows will be overlapping in other columns
+            drop_row = min(drop_row, col_drop_row)
+        return drop_row
+
+    def _lock_tetromino_(self, tetromino, position):
+        """ Lock the tetromino in the field at specified position. It is assumed that position specifies the destination of the top left block of the tetromino grid (which may be an empty block). Note that if the tetromino is locked is a position that overlaps with existing filled blocks, the new tetromino will overwrite the exsting blocks. """
+        for tetr_col in range(tetromino.width()):
+            for tetr_row in range(tetromino.height()):
+                grid_position = (position[0] + tetr_row,
+                                 position[1] + tetr_col)
+                tetr_position = (tetr_row, tetr_col)
+                # overwrite grid value with tetromino value
+                if tetromino[tetr_position] != 0:
+                    self.grid[grid_position] = tetromino[tetr_position]
+
+    def clear_filled_lines(self):
+        """ Check for and remove filled lines """
+        partially_filled_lines = np.array(
+            [row for row in self.grid if (not row.all() and row.any())])
+        self.grid.fill(0)
+        if partially_filled_lines.any():
+            self.grid[self.HEIGHT - partially_filled_lines.shape[0] :,:] = partially_filled_lines
+
+    def hold_tetronimo(self, tetronimo):
+        """ Store tetronimo (without rotations) and return previously held tetromino (if there is one) """
+        assert isinstance(tetromino, Tetromino)
+        swap = self.held_tetromino
+        self.held_tetromino = tetromino.reset_rotations()
+        return swap
+
+    def simulate_turn(self, tetromino, col):
+        """ Spawn and drop tetromino with left side aligned with specified column. Return whether game has ended.
+            Game can end in two ways:
+                - A piece is spawned overlapping with an existing
+                  block (block out)
+                - A piece locks completely above row 2 (lock out)
+        """
+        assert isinstance(tetromino, Tetromino)
+        if not playfield.test_position(tetromino,
+                                       tetromino.spawn_position()):
+            return False # game over (block out)
+        row = self.get_drop_row(tetromino, col)
+        if row + tetromino.height() < 2:
+            return False # game over (lock out)
+        self._lock_tetromino_(tetromino, (row, col))
+        self.clear_filled_lines()
+        return True
+
 
 if __name__ == "__main__":
     playfield = Playfield()
-    playfield2 = Playfield(playfield.grid)
-    print(playfield)
+    game_over = False
+
+    # shape = 'O'
+    # tetromino = Tetromino(shape)
+    # playfield.drop_tetromino(tetromino, 0)
+    # print(playfield)
+    # playfield.drop_tetromino(tetromino, 2)
+    # print(playfield)
+    # playfield.drop_tetromino(tetromino, 4)
+    # print(playfield)
+    # playfield.drop_tetromino(tetromino, 6)
+    # print(playfield)
+    # playfield.drop_tetromino(tetromino, 8)
+    # print(playfield)
+    while not game_over:
+        shape = random.choice(Tetromino.SHAPES)
+        tetromino = Tetromino(shape)
+        if tetromino.shape is 'I':
+            tetromino.rotate()
+            tetronimo = playfield.hold_tetronimo(tetromino)
+        position = tetromino.spawn_position()
+        game_over = not playfield.simulate_turn(tetromino, 0)
+        print(playfield)
+    print('GAME OVER')

@@ -111,26 +111,21 @@ class Tetromino(object):
         if col < 0 or col >= self.width():
             raise ValueError('{} is not 0 <= col < width'.format(col))
         # get row of lowest filled block in column
-        bottom_block_row = max([i for i,x in enumerate(self.grid[:,col]) if x != 0])
-        return self.height() - bottom_block_row - 1
+        return (np.flip(self.grid[:,col] != 0)).argmax()
 
 if __name__ == "__main__":
     tetromino = Tetromino('I')
-    print('({},{})'.format(tetromino.height(),tetromino.width()))
-    tetromino.rotate()
-    print('({},{})'.format(tetromino.height(),tetromino.width()))
-    print('{}\n'.format(tetromino))
+    print(tetromino)
     tetromino = Tetromino('O')
-    print('{}\n'.format(tetromino))
-    tetromino = Tetromino('T')
-    tetromino.rotate()
-    print('{}\n'.format(tetromino))
+    print(tetromino)
+    tetromino = Tetromino('T',1)
+    print(tetromino)
     tetromino = Tetromino('S')
-    print('{}\n'.format(tetromino))
+    print(tetromino)
     tetromino = Tetromino('Z')
-    print('{}\n'.format(tetromino))
+    print(tetromino)
     tetromino = Tetromino('J')
-    print('{}\n'.format(tetromino))
+    print(tetromino)
     tetromino = Tetromino('L', 3)
-    print('{}\n'.format(tetromino))
+    print(tetromino)
     

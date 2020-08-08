@@ -34,7 +34,7 @@ class Playfield():
         print_str += '    ' + ' '.join([str(x) for x in range(self.WIDTH)])
         return print_str
 
-    def test_position(self, tetromino, position):
+    def _test_position_(self, tetromino, position):
         """ Check whether the tetromino is out of bounds or overlapping existing blocks when in the specified position. It is assumed that position specifies the position of the top left block of the tetromino grid (which may be an empty block). """
         # test whether placement puts tetromino out of bounds
         if ( position[1] <  0
@@ -52,7 +52,7 @@ class Playfield():
                 return False
         return True
 
-    def get_drop_row(self, tetromino, start_col):
+    def _get_drop_row_(self, tetromino, start_col):
         """ Return the row of the top block of the tetromino if the tetromino is dropped with its left side aligned with the specified column """
         end_col = start_col + tetromino.width()
         if start_col < 0 or end_col > self.WIDTH:
@@ -61,9 +61,9 @@ class Playfield():
         # for each column, get the drop row ignoring other columns. The highest of these is the final drop row
         for tetr_col, grid_col in enumerate(range(start_col, end_col)):
             # 8 appended to column represent floor of playing field
-            col_data = self.grid[:, grid_col].tolist() + [8]
+            col_data = np.append(self.grid[:, grid_col], 8)
             # get row number of highest filled row
-            stack_top = min([i for i, x in enumerate(col_data) if x != 0])
+            stack_top = (col_data != 0 ).argmax()
             col_drop_row = ( stack_top
                              - tetromino.height()
                              + tetromino.number_of_spaces(tetr_col))
@@ -82,7 +82,7 @@ class Playfield():
                 if tetromino[tetr_position] != 0:
                     self.grid[grid_position] = tetromino[tetr_position]
 
-    def clear_filled_lines(self):
+    def _clear_filled_lines_(self):
         """ Check for and remove filled lines """
         partially_filled_lines = np.array(
             [row for row in self.grid if (not row.all() and row.any())])
@@ -105,40 +105,27 @@ class Playfield():
                 - A piece locks completely above row 2 (lock out)
         """
         assert isinstance(tetromino, Tetromino)
-        if not playfield.test_position(tetromino,
+        if not playfield._test_position_(tetromino,
                                        tetromino.spawn_position()):
             return False # game over (block out)
-        row = self.get_drop_row(tetromino, col)
+        row = self._get_drop_row_(tetromino, col)
         if row + tetromino.height() < 2:
             return False # game over (lock out)
         self._lock_tetromino_(tetromino, (row, col))
-        self.clear_filled_lines()
+        self._clear_filled_lines_()
         return True
 
+    def get_all_drops():
+        pass
 
 if __name__ == "__main__":
     playfield = Playfield()
     game_over = False
 
-    # shape = 'O'
-    # tetromino = Tetromino(shape)
-    # playfield.drop_tetromino(tetromino, 0)
-    # print(playfield)
-    # playfield.drop_tetromino(tetromino, 2)
-    # print(playfield)
-    # playfield.drop_tetromino(tetromino, 4)
-    # print(playfield)
-    # playfield.drop_tetromino(tetromino, 6)
-    # print(playfield)
-    # playfield.drop_tetromino(tetromino, 8)
-    # print(playfield)
     while not game_over:
         shape = random.choice(Tetromino.SHAPES)
         tetromino = Tetromino(shape)
-        if tetromino.shape is 'I':
-            tetromino.rotate()
-            tetronimo = playfield.hold_tetronimo(tetromino)
-        position = tetromino.spawn_position()
+        tetronimo = playfield.hold_tetronimo(tetromino)
         game_over = not playfield.simulate_turn(tetromino, 0)
-        print(playfield)
+    print(playfield)
     print('GAME OVER')

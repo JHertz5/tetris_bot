@@ -9,6 +9,16 @@ from playfield import Playfield
 
 class Solver():
 
+    WEIGHTS = [
+        100, # game_over
+        20,  # wells
+        10,  # gaps
+        2,    # mean_height
+        -5,  # cleared_lines
+        -7.5 # row
+    ]
+    WEIGHTS_VECTOR = np.array(WEIGHTS, dtype=np.uint8)
+
     def __init__(self):
         pass
     
@@ -46,9 +56,9 @@ class Solver():
                     })
         return outcomes
 
-    def decide_outcome(self, playfield, tetromino):
-        """ Score and filter all potential outcomes to determine the best action to take
-            Each outcome is scored on the following paramters:
+    def get_outcome_cost(self, outcome):
+        """ Get scoring vector for outcome by performing dot product with
+            weights vector. Each outcome is scored on the following paramters:
                 Whether it causes game over
                 How many gaps it contains (fewer is better)
                 Mean height of stack (lower is better)
@@ -56,27 +66,26 @@ class Solver():
                 Cleared lines (more is better)
                 Drop row (lower is better)
         """
+        score_vector  = np.array([
+            outcome['game_over'],
+            outcome['wells'],
+            outcome['gaps'],
+            outcome['mean_height'],
+            outcome['cleared_lines'],
+            outcome['row']
+        ], dtype=np.uint8)
+        return np.dot(score_vector, Solver.WEIGHTS_VECTOR)
+
+    def decide_outcome(self, playfield, tetromino):
+        """ Score and filter all potential outcomes to determine the best action to take. Return outcome that has lowest cost """
         outcomes = self.get_all_outcomes(playfield, tetromino)
-
-        # Should be doing weighting rather than binary filter. Ai is dying just to avoid wells when it wouldn't be that bad
-
-        # TODO do a fancy dot product or whatever
         for index, outcome in enumerate(outcomes):
-            outcomes[index]['cost'] = (outcome['game_over'] * 100
-                                       + outcome['wells'] * 10
-                                       + outcome['gaps'] * 10
-                                       + outcome['mean_height'] * 1
-                                       - outcome['cleared_lines'] * 5
-                                       - outcome['row'] * 7.5
-            )
-
+            outcomes[index]['cost'] = self.get_outcome_cost(outcome)
         # Filter out any outcome that results in game_over. If there is no surviving outcome, just return the first outcome
         lowest_cost = min([outcome['cost'] for outcome in outcomes])
         outcomes = list(filter(lambda outcome: outcome['cost'] == lowest_cost, outcomes))
-
-        # Out of top scoring outcomes, return the first one
+        # With multiple top scoring outcomes, selection is arbitrary. Return the first one
         return outcomes[0]
-
 
 if __name__ == "__main__":
     solver = Solver()
@@ -98,7 +107,7 @@ if __name__ == "__main__":
         tetromino = chosen_outcome['tetromino']
         game_over = playfield.is_game_over(tetromino, col)
         playfield.drop_tetromino(tetromino, col)
-        print('score = {}'.format(score))
+        print('score = {}, cost = {}'.format(score, chosen_outcome['cost']))
         print(playfield)
         score += 1
     print('GAME OVER, score = {}'.format(score))

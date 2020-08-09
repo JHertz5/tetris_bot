@@ -9,13 +9,11 @@ from playfield import Playfield
 
 class Solver():
 
+    # These weights are almost definitely not optimal, but they have been manually tuned to be "good enough"
     WEIGHTS = [
-        100, # game_over
         20,  # wells
         10,  # gaps
-        2,   # mean_height   TODO check whether this actually makes difference
-        -5,  # cleared_lines TODO check whether this actually makes difference
-        -7.5 # row
+        -8   # row
     ]
     WEIGHTS_VECTOR = np.array(WEIGHTS, dtype=np.int8)
 
@@ -41,7 +39,7 @@ class Solver():
             for tetr in [active_tetromino.copy().rotate(n) for n in range(4)]:
                 for col in range(playfield.WIDTH - tetr.width() + 1):
                     outcome_playfield = playfield.copy()
-                    row, cleared_lines = outcome_playfield.drop_tetromino(tetr, col)
+                    row = outcome_playfield.drop_tetromino(tetr, col)
                     outcomes.append({
                         'playfield' : outcome_playfield,
                         'tetromino': tetr,
@@ -50,28 +48,19 @@ class Solver():
                         'hold_swap' : hold_swap,
                         'gaps' : outcome_playfield.get_gap_count(),
                         'wells' : outcome_playfield.get_well_count(),
-                        'mean_height' : outcome_playfield.get_mean_height(),
-                        'cleared_lines' : cleared_lines,
-                        'game_over' : playfield.is_game_over(tetr, col)
                     })
         return outcomes
 
     def get_outcome_cost(self, outcome):
         """ Get scoring vector for outcome by performing dot product with
             weights vector. Each outcome is scored on the following paramters:
-                Whether it causes game over
                 How many gaps it contains (fewer is better)
-                Mean height of stack (lower is better)
                 How many wells it contains (fewer is better)
-                Cleared lines (more is better)
                 Drop row (lower is better)
         """
         score_vector  = np.array([
-            outcome['game_over'],
             outcome['wells'],
             outcome['gaps'],
-            outcome['mean_height'],
-            outcome['cleared_lines'],
             outcome['row']
         ], dtype=np.uint8)
         return np.dot(score_vector, Solver.WEIGHTS_VECTOR)
@@ -81,10 +70,10 @@ class Solver():
         outcomes = self.get_all_outcomes(playfield, tetromino)
         for index, outcome in enumerate(outcomes):
             outcomes[index]['cost'] = self.get_outcome_cost(outcome)
-        # Filter out any outcome that results in game_over. If there is no surviving outcome, just return the first outcome
+        # Filter out any outcome that doesn't have the lowest cost
         lowest_cost = min([outcome['cost'] for outcome in outcomes])
         outcomes = list(filter(lambda outcome: outcome['cost'] == lowest_cost, outcomes))
-        # With multiple top scoring outcomes, selection is arbitrary. Return the first one
+        # With multiple lowest cost outcomes, selection is arbitrary so return the first one
         return outcomes[0]
 
 if __name__ == "__main__":

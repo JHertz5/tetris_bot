@@ -105,8 +105,8 @@ class Playfield():
         assert isinstance(tetromino, Tetromino)
         row = self._get_drop_row_(tetromino, col)
         self._lock_tetromino_(tetromino, (row, col))
-        num_cleared_lines = self._clear_filled_lines_()
-        return row, num_cleared_lines
+        self._clear_filled_lines_()
+        return row
 
     def get_gap_count(self):
         """ Return number of gaps in stack """
@@ -131,13 +131,6 @@ class Playfield():
         right_diffs = col_heights - col_heights_walled[2 : self.WIDTH+2]
         # If column on both sides is > 2 higher, column is a well
         return sum((left_diffs > 2) & (right_diffs > 2))
-
-    def get_mean_height(self):
-        """ Return the mean value of the stack height """
-        # Append 8 to each column to represent floor
-        field_with_floor = np.append(self.grid, [[8] * self.WIDTH], axis=0)
-        # Get height of top filled block in each column and take mean
-        return self.HEIGHT - np.mean((field_with_floor != 0).argmax(axis=0))
 
     def is_game_over(self, tetromino, col):
         """ Spawn and check drop of tetromino with left side aligned with specified column. Return whether game has ended.

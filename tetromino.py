@@ -7,7 +7,7 @@ import numpy as np
 
 class Tetromino(object):
 
-    SHAPES = ['I', 'O', 'T', 'S', 'Z', 'J', 'L']
+    SHAPES = [' ', 'I', 'O', 'T', 'S', 'Z', 'J', 'L']
     SHAPE_COLOUR = {} # TODO
     SHAPE_SPAWN_POSITION = {
         'I' : (3, 3),
@@ -49,7 +49,7 @@ class Tetromino(object):
     }
 
     def __init__(self, shape, rotations=0):
-        if shape.upper() in self.SHAPES:
+        if shape.upper() in self.SHAPES[1:]:
             self.grid = np.array(self.SHAPE_GRID[shape.upper()],
                                  dtype=np.uint8)
         else:
@@ -90,7 +90,7 @@ class Tetromino(object):
         return self
 
     def reset_rotations(self):
-        """ Rotate tetronimo back to original position """
+        """ Rotate tetromino back to original position """
         self.rotate(-self.rotations)
         return self
     
@@ -98,15 +98,14 @@ class Tetromino(object):
         """ Return spawn position of top left block of tetromino grid. Note that this may be an empty square """
         return self.SHAPE_SPAWN_POSITION[self.shape]
 
-
     def flat(self):
         return self.grid.flat
     
     def copy(self):
         """ Return shallow copy of self """
-        return Tetromino(self.shape,self.rotations)
+        return Tetromino(self.shape, self.rotations)
 
-    def number_of_spaces(self, col):
+    def elevation(self, col):
         """ Return number of empty spaces from bottom to lowest filled block in specified column  """
         if col < 0 or col >= self.width():
             raise ValueError('{} is not 0 <= col < width'.format(col))

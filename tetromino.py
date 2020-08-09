@@ -10,13 +10,13 @@ class Tetromino(object):
     SHAPES = ['I', 'O', 'T', 'S', 'Z', 'J', 'L']
     SHAPE_PRINT = [
         ' ',
-        '\033[36mI\033[m',       # I -> cyan
-        '\033[33mO\033[m',       # O -> yellow
-        '\033[35mT\033[m',       # T -> purple
-        '\033[32mS\033[m',       # S -> green
-        '\033[31mZ\033[m',       # Z -> red
-        '\033[34mJ\033[m',       # J -> blue
-        '\033[38;5;214mL\033[m'  # L -> orange
+        '\033[38;5;14mI\033[m', # I -> cyan
+        '\033[38;5;11mO\033[m', # O -> yellow
+        '\033[38;5;13mT\033[m', # T -> purple
+        '\033[38;5;10mS\033[m', # S -> green
+        '\033[38;5;9mZ\033[m',  # Z -> red
+        '\033[38;5;12mJ\033[m', # J -> blue
+        '\033[38;5;208mL\033[m' # L -> orange
     ]
     SHAPE_SPAWN_POSITION = {
         'I' : (3, 3),

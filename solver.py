@@ -20,14 +20,14 @@ class Solver():
     def __init__(self):
         pass
     
-    def get_all_outcomes(self, playfield, tetromino):
+    def get_all_outcomes(self, playfield, tetromino, ban_hold=False):
         """ Get all potential outcomes so that they can be scored and filtered """
         assert(isinstance(playfield, Playfield))
         assert(isinstance(tetromino, Tetromino))
 
         outcomes = []
         hold_swap_options = [False]
-        if playfield.held_tetromino is not None:
+        if playfield.held_tetromino is not None and not ban_hold:
             hold_swap_options += [True]
 
         for hold_swap in hold_swap_options:
@@ -43,6 +43,7 @@ class Solver():
                     outcomes.append({
                         'playfield' : outcome_playfield,
                         'tetromino': tetr,
+                        'rotations' : tetr.rotations,
                         'row' : row,
                         'col' : col,
                         'hold_swap' : hold_swap,
@@ -65,9 +66,9 @@ class Solver():
         ], dtype=np.uint8)
         return np.dot(score_vector, Solver.WEIGHTS_VECTOR)
 
-    def decide_outcome(self, playfield, tetromino):
+    def decide_outcome(self, playfield, tetromino, ban_hold=False):
         """ Score and filter all potential outcomes to determine the best action to take. Return outcome that has lowest cost """
-        outcomes = self.get_all_outcomes(playfield, tetromino)
+        outcomes = self.get_all_outcomes(playfield, tetromino, ban_hold)
         for index, outcome in enumerate(outcomes):
             outcomes[index]['cost'] = self.get_outcome_cost(outcome)
         # Filter out any outcome that doesn't have the lowest cost
@@ -94,7 +95,6 @@ if __name__ == "__main__":
         if chosen_outcome['hold_swap']:
             playfield.hold_tetromino(tetromino)
         tetromino = chosen_outcome['tetromino']
-        game_over = playfield.is_game_over(tetromino, col)
         playfield.drop_tetromino(tetromino, col)
         print('score = {}, cost = {}'.format(score, chosen_outcome['cost']))
         print(playfield)

@@ -5,7 +5,7 @@ import numpy as np
 
 # Tetromino stored as np array that can be superimposed onto playing field array. This class handles rotations of the tetromino
 
-class Tetromino(object):
+class Tetromino():
 
     SHAPES = ['I', 'O', 'T', 'S', 'Z', 'J', 'L']
     SHAPE_PRINT = [
@@ -64,7 +64,6 @@ class Tetromino(object):
         else:
             raise ValueError('Type {} not recognised'.format(shape))
         self.shape = shape
-        assert(rotations < 4)
         self.rotations = 0
         self.rotate(rotations)
 
@@ -92,7 +91,7 @@ class Tetromino(object):
 
     def rotate(self, rotations=1):
         """ Perform 90 degrees clockwise rotations """
-        self.rotations += rotations % 4
+        self.rotations = (self.rotations + rotations) % 4
         # np.rot90 does anti-clockwise rotations so negative rotations are
         # performed
         self.grid = np.rot90(self.grid, -rotations)

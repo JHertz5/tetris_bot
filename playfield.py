@@ -132,24 +132,15 @@ class Playfield():
         # If column on both sides is > 2 higher, column is a well
         return sum((left_diffs > 2) & (right_diffs > 2))
 
-    def is_game_over(self, tetromino, col):
-        """ Spawn and check drop of tetromino with left side aligned with specified column. Return whether game has ended.
-            Game can end in two ways:
-                - A piece is spawned overlapping with an existing
-                  block (block out)
-                - A piece locks completely above row 2 (lock out)
-        """
-        assert isinstance(tetromino, Tetromino)
-        if not self._test_position_(tetromino.copy().reset_rotations(),
-                                    tetromino.spawn_position()):
-            return True # Game over (block out)
-        row = self._get_drop_row_(tetromino, col)
-        if row + tetromino.height() < 2:
-            return True # Game over (lock out)
-        return False
-
     def copy(self):
         return Playfield(self.grid, self.held_tetromino)
+
+    def execute_outcome(self, outcome, tetromino):
+        if outcome['hold_swap']:
+            tetromino = self.hold_tetromino(tetromino)
+        tetromino.rotate(outcome['rotations'])
+        self.drop_tetromino(tetromino, outcome['col'])
+        
 
 if __name__ == "__main__":
     playfield = Playfield()
@@ -158,8 +149,6 @@ if __name__ == "__main__":
     while not game_over:
         shape = random.choice(Tetromino.SHAPES)
         tetromino = Tetromino(shape)
-        game_over = playfield.is_game_over(tetromino, 0)
         playfield.drop_tetromino(tetromino, 0)
-    print(playfield)
-    print(playfield.get_well_count())
+        print(playfield)
     print('   G A M E   O V E R')

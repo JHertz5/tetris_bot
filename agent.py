@@ -51,12 +51,37 @@ class Agent():
     def execute_outcome(self, outcome):
         """ Generate a list of actions required to execute outcome. Map these to keystrokes and perform them """
         # Start off by performing rotations and moving to the left wall. This is done because the tetris rotation scheme is complex and it is easier to got to the left wall and start from a known position than to model the rotation scheme for no real benefit
-        actions = ['hold_swap'] * outcome['hold_swap']
-        actions += ['rotate_cw'] * outcome['rotations'] # TODO reduce number of keypresses by rotating anti-clockwise if rotations = 3
-        actions += ['left'] * 5 # TODO reduce number of keypresses here by moving to the right instead of left if end position is closer
-        actions += ['right'] * outcome['col']
-        actions += ['drop']
-        pyautogui.typewrite([self.KEY_MAPPING[x] for x in actions], interval=0.04)
+        if outcome['hold_swap']:
+            pyautogui.typewrite(self.KEY_MAPPING['hold_swap'])
+            time.sleep(0.5) # hold_swap has some extra delay, so it is done seperately
+
+        actions = []
+        if outcome['tetromino'] is not None:
+            if outcome['rotations'] == 3:
+                actions += ['rotate_ccw']
+            else:
+                actions += ['rotate_cw'] * outcome['rotations']
+            # determine number of left/right moves
+            if outcome['rotations'] == 0:
+                # no need to move to wall as no rotations means no ambiguity on position
+                displacement = outcome['tetromino'].spawn_position()[1] - outcome['col']
+                print(displacement)
+                if displacement > 0:
+                    direction = ['left']
+                else:
+                    direction = ['right']
+                actions += direction * abs(displacement)
+            else:
+                if outcome['col'] < 5:
+                    actions += ['left'] * 5
+                    actions += ['right'] * outcome['col']
+                else: 
+                    actions += ['right'] * 5
+                    actions += ['left'] * (outcome['playfield'].WIDTH - outcome['tetromino'].width() - outcome['col'])
+            actions += ['drop']
+            print([self.KEY_MAPPING[x] for x in actions])
+        pyautogui.typewrite([self.KEY_MAPPING[x] for x in actions], interval=0.1)
+        # pyautogui.typewrite([self.KEY_MAPPING[x] for x in actions], interval=0.03)
 
 if __name__ == "__main__":
     agent = Agent()

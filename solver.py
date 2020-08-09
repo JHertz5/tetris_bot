@@ -13,7 +13,7 @@ class Solver():
     WEIGHTS = [
         20,  # wells
         10,  # gaps
-        -8   # row
+        -2   # row
     ]
     WEIGHTS_VECTOR = np.array(WEIGHTS, dtype=np.int8)
 
@@ -27,14 +27,27 @@ class Solver():
 
         outcomes = []
         hold_swap_options = [False]
-        if playfield.held_tetromino is not None and not ban_hold:
+        if not ban_hold:
             hold_swap_options += [True]
 
         for hold_swap in hold_swap_options:
-            if hold_swap:
-                active_tetromino = playfield.held_tetromino
+            if hold_swap and playfield.held_tetromino is None:
+                outcomes.append({
+                    'playfield' : playfield,
+                    'tetromino': None,
+                    'rotations' : 0,
+                    'row' : outcome_playfield.HEIGHT,
+                    'col' : 0,
+                    'hold_swap' : hold_swap,
+                    'gaps' : outcome_playfield.get_gap_count(),
+                    'wells' : outcome_playfield.get_well_count(),
+                })
+                continue
             else:
-                active_tetromino = tetromino
+                if hold_swap:
+                    active_tetromino = playfield.held_tetromino
+                else:
+                    active_tetromino = tetromino
             # Get all outcomes for each hold/rotate permutation of tetromino
             for tetr in [active_tetromino.copy().rotate(n) for n in range(4)]:
                 for col in range(playfield.WIDTH - tetr.width() + 1):
@@ -74,7 +87,8 @@ class Solver():
         # Filter out any outcome that doesn't have the lowest cost
         lowest_cost = min([outcome['cost'] for outcome in outcomes])
         outcomes = list(filter(lambda outcome: outcome['cost'] == lowest_cost, outcomes))
-        # With multiple lowest cost outcomes, selection is arbitrary so return the first one
+        # With multiple lowest cost outcomes, selection is only affected by number of keystrokes outcome requires.
+        # The lowest outcome in the list is more likely to not require swap and not require any rotations
         return outcomes[0]
 
 if __name__ == "__main__":
@@ -91,11 +105,7 @@ if __name__ == "__main__":
         shape = random.choice(Tetromino.SHAPES)
         tetromino = Tetromino(shape)
         chosen_outcome = solver.decide_outcome(playfield, tetromino)
-        col = chosen_outcome['col']
-        if chosen_outcome['hold_swap']:
-            playfield.hold_tetromino(tetromino)
-        tetromino = chosen_outcome['tetromino']
-        playfield.drop_tetromino(tetromino, col)
+        playfield.execute_outcome(chosen_outcome, tetromino)
         print('score = {}, cost = {}'.format(score, chosen_outcome['cost']))
         print(playfield)
         score += 1

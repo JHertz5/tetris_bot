@@ -138,6 +138,9 @@ class Playfield():
     def execute_outcome(self, outcome, tetromino):
         if outcome['hold_swap']:
             tetromino = self.hold_tetromino(tetromino)
+        # If hold swap returned an empty Tetromino, skip the rest
+        if tetromino is None:
+            return
         tetromino.rotate(outcome['rotations'])
         self.drop_tetromino(tetromino, outcome['col'])
         

@@ -68,18 +68,7 @@ class Tetromino():
         self.rotate(rotations)
 
     def __str__(self):
-        grid_string = ''
-        if self.grid.ndim == 2:
-            col_strings = []
-            for col in self.grid:
-                col_strings.append( ''.join([self.SHAPE_PRINT[x] for x in col]) )
-            grid_string = '\n'.join(col_strings)
-        elif self.grid.ndim == 1:
-            grid_string += ''.join(self.grid)
-        else:
-            raise ValueError('Grid must be either 1 or 2 dimensions')
-        return grid_string
-
+        return self.shape
     def __getitem__(self, key):
         return self.grid[key]
 

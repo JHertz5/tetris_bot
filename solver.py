@@ -92,13 +92,13 @@ if __name__ == "__main__":
     playfield = Playfield()
     game_over = False
 
-    shape = random.choice(Tetromino.SHAPES[1:])
+    shape = random.choice(Tetromino.SHAPES)
     tetromino = Tetromino(shape)
     tetromino = playfield.hold_tetromino(tetromino)
 
     score = 0
     while not game_over:
-        shape = random.choice(Tetromino.SHAPES[1:])
+        shape = random.choice(Tetromino.SHAPES)
         tetromino = Tetromino(shape)
         chosen_outcome = solver.decide_outcome(playfield, tetromino)
         col = chosen_outcome['col']

@@ -28,7 +28,7 @@ class Playfield():
         print_str  = '  ┌' + '─' * (self.WIDTH * 2 + 1) + '┐\n'
         for row in range(self.HEIGHT):
             print_str += ('{:2d}│ '.format(row)
-                          + ' '.join(Tetromino.SHAPES[x] for x in self.grid[row, :])
+                          + ' '.join(Tetromino.SHAPE_PRINT[x] for x in self.grid[row, :])
                           + ' │\n')
         print_str += '  └' + '─' * (self.WIDTH * 2 + 1) + '┘\n'
         print_str += '    ' + ' '.join([str(x) for x in range(self.WIDTH)])
@@ -163,7 +163,7 @@ if __name__ == "__main__":
     game_over = False
 
     while not game_over:
-        shape = random.choice(Tetromino.SHAPES[1:])
+        shape = random.choice(Tetromino.SHAPES)
         tetromino = Tetromino(shape)
         game_over = playfield.is_game_over(tetromino, 0)
         playfield.drop_tetromino(tetromino, 0)

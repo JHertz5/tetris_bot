@@ -7,8 +7,17 @@ import numpy as np
 
 class Tetromino(object):
 
-    SHAPES = [' ', 'I', 'O', 'T', 'S', 'Z', 'J', 'L']
-    SHAPE_COLOUR = {} # TODO
+    SHAPES = ['I', 'O', 'T', 'S', 'Z', 'J', 'L']
+    SHAPE_PRINT = [
+        ' ',
+        '\033[36mI\033[m',       # I -> cyan
+        '\033[33mO\033[m',       # O -> yellow
+        '\033[35mT\033[m',       # T -> purple
+        '\033[32mS\033[m',       # S -> green
+        '\033[31mZ\033[m',       # Z -> red
+        '\033[34mJ\033[m',       # J -> blue
+        '\033[38;5;214mL\033[m'  # L -> orange
+    ]
     SHAPE_SPAWN_POSITION = {
         'I' : (3, 3),
         'O' : (2, 4),
@@ -49,7 +58,7 @@ class Tetromino(object):
     }
 
     def __init__(self, shape, rotations=0):
-        if shape.upper() in self.SHAPES[1:]:
+        if shape.upper() in self.SHAPES:
             self.grid = np.array(self.SHAPE_GRID[shape.upper()],
                                  dtype=np.uint8)
         else:
@@ -64,7 +73,7 @@ class Tetromino(object):
         if self.grid.ndim == 2:
             col_strings = []
             for col in self.grid:
-                col_strings.append( ''.join([str(x) for x in col]) )
+                col_strings.append( ''.join([self.SHAPE_PRINT[x] for x in col]) )
             grid_string = '\n'.join(col_strings)
         elif self.grid.ndim == 1:
             grid_string += ''.join(self.grid)

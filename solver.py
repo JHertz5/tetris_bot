@@ -13,11 +13,11 @@ class Solver():
         100, # game_over
         20,  # wells
         10,  # gaps
-        2,    # mean_height
-        -5,  # cleared_lines
+        2,   # mean_height   TODO check whether this actually makes difference
+        -5,  # cleared_lines TODO check whether this actually makes difference
         -7.5 # row
     ]
-    WEIGHTS_VECTOR = np.array(WEIGHTS, dtype=np.uint8)
+    WEIGHTS_VECTOR = np.array(WEIGHTS, dtype=np.int8)
 
     def __init__(self):
         pass

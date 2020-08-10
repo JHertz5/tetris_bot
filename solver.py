@@ -13,7 +13,7 @@ class Solver():
     WEIGHTS = [
         20,  # wells
         10,  # gaps
-        -2   # row
+        -10   # row
     ]
     WEIGHTS_VECTOR = np.array(WEIGHTS, dtype=np.int8)
 

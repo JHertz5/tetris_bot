@@ -12,11 +12,10 @@ from playfield import Playfield
 class Solver():
 
     # These weights are almost definitely not optimal, but they have been manually tuned to be "good enough"
-    WEIGHTS = [
-        20,  # wells
-        20,  # gaps
-        -5   # row
-    ]
+    WEIGHTS = [20, # wells
+               20, # gaps
+               -5] # row
+    
     WEIGHTS_VECTOR = np.array(WEIGHTS, dtype=np.int8)
 
     def __init__(self):

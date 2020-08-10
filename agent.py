@@ -21,23 +21,19 @@ class Agent():
         ( 63, 155,  91) : 'S',
         (155,  63,  63) : 'Z',
         ( 63, 115, 155) : 'J',
-        (155, 126,  63) : 'L'
-    }
+        (155, 126,  63) : 'L'}
     KEY_MAPPING = {
         'left' : 'left',
         'right' : 'right',
         'rotate_cw' : 'up',
         'rotate_ccw' : 'z',
         'drop' : ' ',
-        'hold_swap' : 'c',
-    }
+        'hold_swap' : 'c'}
 
     def __init__(self):
         self.next_sample = 'waiting'
         pass
 
-
-    # TODO make  code more readable
     def get_sample(self):
         """ Get colour of sample pixel and return decode value """
         window = Gdk.get_default_root_window()
@@ -53,7 +49,7 @@ class Agent():
         return Tetromino(self.next_sample)
 
     def start_game(self):
-        """ Find and click start button twice (first time to focus on window), set up sample location. Return first tetromino """ # TODO finish docstring
+        """ Find and click start button twice (first time to focus on window), set up sample location, and return first tetromino """
         self.play_button_location = pyautogui.locateCenterOnScreen(
                                     self.PLAY_BUTTON_IMAGE_PATH)
         if self.play_button_location is None:
@@ -66,10 +62,8 @@ class Agent():
             self.get_sample()
         time.sleep(3)
         # Return first tetromino
-        print('decoded: {}'.format(self.next_sample))
         return self.get_next_tetromino()
 
-    # TODO figure out position changes due to rotation to decrease number of keystrokes
     def execute_position(self, outcome, interval=0.1):
         """ Generate a list of actions required to execute outcome. Map these to keystrokes and perform them """
         # Start off by performing rotations and moving to the left wall. This is done because the tetris rotation scheme is complex and it is easier to got to the left wall and start from a known position than to model the rotation scheme for no real benefit
@@ -89,16 +83,13 @@ class Agent():
             actions += ['rotate_ccw']
         else:
             actions += ['rotate_cw'] * outcome['rotations']
-
-        # determine number of left/right moves
+        # Determine number of left/right moves
         displacement = outcome['tetromino'].spawn_column() - outcome['col'] + outcome['tetromino'].rotation_column_offset()
         if displacement > 0:
             direction = ['left']
         else:
             direction = ['right']
         actions += direction * abs(displacement)
-
-        print([self.KEY_MAPPING[x] for x in actions])
         pyautogui.typewrite([self.KEY_MAPPING[x] for x in actions], interval=interval)
 
     def execute_outcome_and_sample(self, outcome, interval=0.1):
@@ -109,5 +100,4 @@ class Agent():
             pyautogui.press(self.KEY_MAPPING['drop'])
         else:
             time.sleep(1)
-        print('placed: {}'.format(outcome['tetromino']))
         return self.next_sample

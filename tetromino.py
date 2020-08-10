@@ -10,23 +10,13 @@ class Tetromino():
     SHAPES = ['I', 'O', 'T', 'S', 'Z', 'J', 'L']
     SHAPE_PRINT = [
         ' ',
-        '\033[38;5;14mI\033[m', # I -> cyan
-        '\033[38;5;11mO\033[m', # O -> yellow
-        '\033[38;5;13mT\033[m', # T -> purple
-        '\033[38;5;10mS\033[m', # S -> green
-        '\033[38;5;9mZ\033[m',  # Z -> red
-        '\033[38;5;12mJ\033[m', # J -> blue
-        '\033[38;5;208mL\033[m' # L -> orange
-    ]
-    SHAPE_SPAWN_COLUMN = {
-        'I' : 3,
-        'O' : 4,
-        'T' : 3,
-        'S' : 3,
-        'Z' : 3,
-        'J' : 3,
-        'L' : 3
-    }
+        '\033[38;5;14mI\033[m',  # I -> cyan
+        '\033[38;5;11mO\033[m',  # O -> yellow
+        '\033[38;5;13mT\033[m',  # T -> purple
+        '\033[38;5;10mS\033[m',  # S -> green
+        '\033[38;5;9mZ\033[m',   # Z -> red
+        '\033[38;5;12mJ\033[m',  # J -> blue
+        '\033[38;5;208mL\033[m'] # L -> orange
     SHAPE_GRID = {
         'I' : [
                 [1, 1, 1, 1]
@@ -54,8 +44,7 @@ class Tetromino():
         'L' : [
                 [0, 0, 7],
                 [7, 7, 7]
-            ]
-    }
+            ]}
 
     def __init__(self, shape, rotations=0):
         if shape.upper() in self.SHAPES:
@@ -93,7 +82,10 @@ class Tetromino():
     
     def spawn_column(self):
         """ Return column aligned with the spawn point of left side of the tetromino grid. """
-        return self.SHAPE_SPAWN_COLUMN[self.shape]
+        if self.shape is 'O':
+            return 4
+        else:
+            return 3
 
     def flat(self):
         return self.grid.flat

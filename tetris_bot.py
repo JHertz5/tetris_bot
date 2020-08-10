@@ -29,7 +29,6 @@ while not game_over:
     # pyautogui.screenshot('./screen_captures/{}.png'.format(turn_num))
     playfield.execute_outcome(chosen_outcome, current_tetromino)
     print(playfield)
-    print('cost = {}'.format(chosen_outcome['cost']))
     time.sleep(0.4)
 
     # decode old sample and get new sample

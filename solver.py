@@ -14,7 +14,8 @@ class Solver():
     # These weights are almost definitely not optimal, but they have been manually tuned to be "good enough"
     WEIGHTS = [20, # wells
                20, # gaps
-               -5] # row
+               5, # gap depth
+               -10] # row
     
     WEIGHTS_VECTOR = np.array(WEIGHTS, dtype=np.int8)
 
@@ -35,6 +36,7 @@ class Solver():
                 'col' : 0,
                 'hold_swap' : False,
                 'gaps' : 0,
+                'gap_depth' : 0,
                 'wells' : 0 }]
 
         outcomes = []
@@ -52,6 +54,7 @@ class Solver():
                     'col' : 0,
                     'hold_swap' : hold_swap,
                     'gaps' : 0,
+                    'gap_depth' : 0,
                     'wells' : 0})
                 continue
             else:
@@ -72,6 +75,7 @@ class Solver():
                         'col' : col,
                         'hold_swap' : hold_swap,
                         'gaps' : outcome_playfield.get_gap_count(),
+                        'gap_depth' : outcome_playfield.get_gap_depth(),
                         'wells' : outcome_playfield.get_well_count(),
                     })
         return outcomes
@@ -79,13 +83,15 @@ class Solver():
     def get_outcome_cost(self, outcome):
         """ Get scoring vector for outcome by performing dot product with
             weights vector. Each outcome is scored on the following paramters:
-                How many gaps it contains (fewer is better)
                 How many wells it contains (fewer is better)
+                How many gaps it contains (fewer is better)
+                How many blocks are above gaps (fewer is better)
                 Drop row (lower is better)
         """
         score_vector  = np.array([
             outcome['wells'],
             outcome['gaps'],
+            outcome['gap_depth'],
             outcome['row']
         ], dtype=np.uint8)
         return np.dot(score_vector, Solver.WEIGHTS_VECTOR)

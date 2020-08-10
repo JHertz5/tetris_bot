@@ -57,7 +57,7 @@ class Agent():
         pyautogui.click(self.play_button_location, clicks=2, interval=0.1)
         pyautogui.move(self.PLAY_BUTTON_TO_SAMPLE_OFFSET)
         self.pixel_sample_location = pyautogui.position()
-        # wait for game to start
+        # Wait for game to start
         while self.next_sample not in Tetromino.SHAPES:
             self.get_sample()
         time.sleep(3)
@@ -72,13 +72,11 @@ class Agent():
                 # if None is swapped out, take sample
                 self.get_sample()
             pyautogui.press(self.KEY_MAPPING['hold_swap'], interval=0.25)
-
+        # If there is no tetromino to place, end actions here
         if outcome['tetromino'] is None:
-            # If there is no tetromino to place, end actions here
             return
-
         actions = []
-        # Do rotations
+        # Determine number of rotations
         if outcome['rotations'] == 3:
             actions += ['rotate_ccw']
         else:
@@ -92,12 +90,11 @@ class Agent():
         actions += direction * abs(displacement)
         pyautogui.typewrite([self.KEY_MAPPING[x] for x in actions], interval=interval)
 
-    def execute_outcome_and_sample(self, outcome, interval=0.1):
+    def execute_outcome_and_sample(self, outcome, interval=0.1, sleep=0.5):
         """ Position tetromino, capture sample of next tetromino and drop tetromino """
+        time.sleep(sleep)
         self.execute_position(outcome, interval)
         if outcome['tetromino'] is not None:
             self.get_sample()
             pyautogui.press(self.KEY_MAPPING['drop'])
-        else:
-            time.sleep(1)
         return self.next_sample

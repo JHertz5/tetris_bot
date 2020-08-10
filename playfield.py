@@ -2,7 +2,6 @@
 # Model tetris playfield as numpy array
 
 import numpy as np
-import random
 
 from tetromino import Tetromino
 
@@ -108,32 +107,28 @@ class Playfield():
         self._clear_filled_lines_()
         return row
 
+    def get_heights(self):
+        """ Return array containing heights of each column """
+        # Append 8 to each column to represent floor
+        grid_with_floor = np.append(self.grid, [[8] * self.WIDTH], axis=0)
+        return self.HEIGHT - (grid_with_floor != 0).argmax(axis=0)
+
     def get_gap_count(self):
         """ Return number of gaps in stack """
-        # Append 8 to each column to represent floor
-        field_with_floor = np.append(self.grid, [[8] * self.WIDTH], axis=0)
-        # Get top stack row for each column so that leading 0s can be cut off
-        col_tops = (field_with_floor != 0).argmax(axis=0)
         # Count number of zeros after top of stack for each column
-        col_gaps = [np.count_nonzero(col[top:] == 0) for col, top in
-                    zip(self.grid.T, col_tops)]
-        return sum(col_gaps)
+        return sum([np.count_nonzero(col[top:] == 0) for col, top in
+                    zip(self.grid.T, self.HEIGHT - self.get_heights())])
 
     def get_gap_depth(self):
         """ Return sum of gap depth in stack """
-        # Append 8 to each column to represent floor
-        field_with_floor = np.append(self.grid, [[8] * self.WIDTH], axis=0)
-        # Get top stack row for each column so that leading 0s can be cut off
-        col_tops = (field_with_floor != 0).argmax(axis=0)
         # Get the row of the lowest gap for each column
-        lowest_gaps = self.HEIGHT - (np.flip(field_with_floor, axis=0) == 0).argmax(axis=0)
-        return sum(lowest_gaps - col_tops  + 1)
+        lowest_gaps = self.HEIGHT - (np.flip(self.grid, axis=0) == 0).argmax(axis=0)
+        return sum(lowest_gaps - (self.HEIGHT - self.get_heights())  + 1)
 
     def get_well_count(self):
         """ Return number of "wells" in stack that are > 2 deep, i.e. can only be cleared by I shape """
-        field_with_floor = np.append(self.grid, [[8] * self.WIDTH], axis=0)
         # Get height of top filled block in each column
-        col_heights = (field_with_floor != 0).argmax(axis=0)
+        col_heights = self.HEIGHT - self.get_heights()
         # Append walls on either side represented with height 0
         col_heights_walled = np.concatenate(([0], col_heights, [0]))
         # Get difference between column height and column height to the left/right for each column
@@ -148,20 +143,8 @@ class Playfield():
     def execute_outcome(self, outcome, tetromino):
         if outcome['hold_swap']:
             tetromino = self.hold_tetromino(tetromino)
-        # If hold swap returned an empty Tetromino, skip the rest
-        if tetromino is None:
-            return
-        tetromino.rotate(outcome['rotations'])
-        self.drop_tetromino(tetromino, outcome['col'])
-        
-
-if __name__ == "__main__":
-    playfield = Playfield()
-    game_over = False
-
-    while not game_over:
-        shape = random.choice(Tetromino.SHAPES)
-        tetromino = Tetromino(shape)
-        playfield.drop_tetromino(tetromino, 0)
-        print(playfield)
-    print('   G A M E   O V E R')
+        # If hold swap returned an empty Tetromino, skip movement
+        if tetromino is not None:
+            tetromino.rotate(outcome['rotations'])
+            self.drop_tetromino(tetromino, outcome['col'])
+        print(self)

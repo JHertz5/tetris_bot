@@ -18,14 +18,14 @@ class Tetromino():
         '\033[38;5;12mJ\033[m', # J -> blue
         '\033[38;5;208mL\033[m' # L -> orange
     ]
-    SHAPE_SPAWN_POSITION = {
-        'I' : (3, 3),
-        'O' : (2, 4),
-        'T' : (2, 3),
-        'S' : (2, 3),
-        'Z' : (2, 3),
-        'J' : (2, 3),
-        'L' : (2, 3)
+    SHAPE_SPAWN_COLUMN = {
+        'I' : 3,
+        'O' : 4,
+        'T' : 3,
+        'S' : 3,
+        'Z' : 3,
+        'J' : 3,
+        'L' : 3
     }
     SHAPE_GRID = {
         'I' : [
@@ -91,9 +91,9 @@ class Tetromino():
         self.rotate(-self.rotations)
         return self
     
-    def spawn_position(self):
-        """ Return spawn position of top left block of tetromino grid. Note that this may be an empty square """
-        return self.SHAPE_SPAWN_POSITION[self.shape]
+    def spawn_column(self):
+        """ Return column aligned with the spawn point of left side of the tetromino grid. """
+        return self.SHAPE_SPAWN_COLUMN[self.shape]
 
     def flat(self):
         return self.grid.flat
@@ -108,6 +108,15 @@ class Tetromino():
             raise ValueError('{} is not 0 <= col < width'.format(col))
         # get row of lowest filled block in column
         return (np.flip(self.grid[:,col] != 0)).argmax()
+
+    def rotation_column_offset(self):
+        """ Performing rotations shifts the column alignment of the block. Return the difference in column alignment between the spawn state and the rotated state. """
+        if self.shape is 'O':
+            return 0
+        elif self.shape is 'I':
+            return [0, 2, 0, 1][self.rotations]
+        else:
+            return [0, 1, 0, 0][self.rotations]
 
 if __name__ == "__main__":
     tetromino = Tetromino('I')

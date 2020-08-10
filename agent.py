@@ -2,16 +2,17 @@
 # Responsible for interacting with the screen and keyboard in order to control external game
 
 import gi
-gi.require_version("Gdk", "3.0")    
+gi.require_version("Gdk", "3.0")
 from gi.repository import Gdk
 import pyautogui
 import time
+from tetromino import Tetromino
 
 class Agent():
 
     PLAY_BUTTON_IMAGE_PATH = './data/play_button.png'
     PLAY_BUTTON_TO_SAMPLE_OFFSET = (260, -100)
-    COLOUR_DECODER = {
+    SAMPLE_COLOUR_DECODER = {
         ( 36,  36,  36) : 'waiting',
         ( 30,  32,  33) : 'paused',
         (  0, 114, 127) : 'I',
@@ -32,10 +33,27 @@ class Agent():
     }
 
     def __init__(self):
+        self.next_sample = 'waiting'
         pass
 
+
+    # TODO make  code more readable
+    def get_sample(self):
+        """ Get colour of sample pixel and return decode value """
+        window = Gdk.get_default_root_window()
+        pixbuf = Gdk.pixbuf_get_from_window(window, *self.pixel_sample_location, 1, 1)
+        pixel = tuple(pixbuf.get_pixels())
+        if pixel not in self.SAMPLE_COLOUR_DECODER.keys():
+            self.next_sample = 'game_over'
+        else:
+            self.next_sample = self.SAMPLE_COLOUR_DECODER[pixel]
+
+    def get_next_tetromino(self):
+        """ Decode next_sample and return the shape of the next Tetromino """
+        return Tetromino(self.next_sample)
+
     def start_game(self):
-        """ Find and click start button twice (first time to focus on window), set up sample location """
+        """ Find and click start button twice (first time to focus on window), set up sample location. Return first tetromino """ # TODO finish docstring
         self.play_button_location = pyautogui.locateCenterOnScreen(
                                     self.PLAY_BUTTON_IMAGE_PATH)
         if self.play_button_location is None:
@@ -43,68 +61,53 @@ class Agent():
         pyautogui.click(self.play_button_location, clicks=2, interval=0.1)
         pyautogui.move(self.PLAY_BUTTON_TO_SAMPLE_OFFSET)
         self.pixel_sample_location = pyautogui.position()
-
-    # TODO make  code more readable
-    def get_sample(self):
-        """ Get colour of sample pixel and return decode value """
-        w = Gdk.get_default_root_window()
-        pb = Gdk.pixbuf_get_from_window(w, *self.pixel_sample_location, 1, 1)
-        pixel = tuple(pb.get_pixels())
-        if pixel not in self.COLOUR_DECODER.keys():
-            return('game_over')
-        return self.COLOUR_DECODER[pixel]
+        # wait for game to start
+        while self.next_sample not in Tetromino.SHAPES:
+            self.get_sample()
+        time.sleep(3)
+        # Return first tetromino
+        print('decoded: {}'.format(self.next_sample))
+        return self.get_next_tetromino()
 
     # TODO figure out position changes due to rotation to decrease number of keystrokes
-    def execute_outcome(self, outcome):
+    def execute_position(self, outcome, interval=0.1):
         """ Generate a list of actions required to execute outcome. Map these to keystrokes and perform them """
         # Start off by performing rotations and moving to the left wall. This is done because the tetris rotation scheme is complex and it is easier to got to the left wall and start from a known position than to model the rotation scheme for no real benefit
         if outcome['hold_swap']:
+            if outcome['tetromino'] is None:
+                # if None is swapped out, take sample
+                self.get_sample()
             pyautogui.press(self.KEY_MAPPING['hold_swap'], interval=0.25)
-            # pyautogui.typewrite(self.KEY_MAPPING['hold_swap'], interval=0.25)
 
+        if outcome['tetromino'] is None:
+            # If there is no tetromino to place, end actions here
+            return
+
+        actions = []
+        # Do rotations
+        if outcome['rotations'] == 3:
+            actions += ['rotate_ccw']
+        else:
+            actions += ['rotate_cw'] * outcome['rotations']
+
+        # determine number of left/right moves
+        displacement = outcome['tetromino'].spawn_column() - outcome['col'] + outcome['tetromino'].rotation_column_offset()
+        if displacement > 0:
+            direction = ['left']
+        else:
+            direction = ['right']
+        actions += direction * abs(displacement)
+
+        print([self.KEY_MAPPING[x] for x in actions])
+        pyautogui.typewrite([self.KEY_MAPPING[x] for x in actions], interval=interval)
+
+    def execute_outcome_and_sample(self, outcome, interval=0.1):
+        """ Position tetromino, capture sample of next tetromino and drop tetromino """
+        self.execute_position(outcome, interval)
         if outcome['tetromino'] is not None:
-            # determine number of left/right moves
-            if outcome['rotations'] == 0:
-                # no need to move to wall as no rotations means no ambiguity on position
-                displacement = outcome['tetromino'].spawn_position()[1] - outcome['col']
-                if displacement > 0:
-                    direction =  'left'
-                    # direction = ['left']
-                else:
-                    direction = 'right'
-                    # direction = ['right']
-                pyautogui.press(self.KEY_MAPPING[direction], presses=abs(displacement), interval=0.05)
-                # actions += direction * abs(displacement)
-            else:
-                # Do rotations
-                if outcome['rotations'] == 3:
-                    pyautogui.press(self.KEY_MAPPING['rotate_ccw'], interval=0.05)
-                    # actions += ['rotate_ccw']
-                else:
-                    pyautogui.press(self.KEY_MAPPING['rotate_cw'], presses=outcome['rotations'], interval=0.05)
-                    # actions += ['rotate_cw'] * outcome['rotations']
-                # Move left/right
-                if outcome['col'] < 5:
-                    pyautogui.press(self.KEY_MAPPING['left'], presses=5, interval=0.05)
-                    pyautogui.press(self.KEY_MAPPING['right'], presses=outcome['col'], interval=0.05)
-                    # actions += ['left'] * 5
-                    # actions += ['right'] * outcome['col']
-                else: 
-                    pyautogui.press(self.KEY_MAPPING['right'], presses=5, interval=0.05)
-                    pyautogui.press(self.KEY_MAPPING['left'], presses=(outcome['playfield'].WIDTH - outcome['tetromino'].width() - outcome['col']), interval=0.05)
-                    # actions += ['right'] * 5
-                    # actions += ['left'] * (outcome['playfield'].WIDTH - outcome['tetromino'].width() - outcome['col'])
-            # actions += ['pause']
-            pyautogui.press(self.KEY_MAPPING['drop'], interval=0.05)
-        #     actions += ['drop']
-        #     print([self.KEY_MAPPING[x] for x in actions])
-        # pyautogui.typewrite([self.KEY_MAPPING[x] for x in actions], interval=0.075)
-
-if __name__ == "__main__":
-    agent = Agent()
-    agent.start_game()
-    decode = ''
-    while decode not in ['paused', 'game_over']:
-        t = time.time()
-        decode = agent.get_sample()
-        print('{}, {}s'.format(decode, time.time() - t))
+            self.get_sample()
+            pyautogui.press(self.KEY_MAPPING['drop'])
+        else:
+            time.sleep(1)
+        print('placed: {}'.format(outcome['tetromino']))
+        return self.next_sample

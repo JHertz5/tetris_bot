@@ -7,27 +7,40 @@ import random
 from tetromino import Tetromino
 from playfield import Playfield
 
+# TODO penalise blocking gaps further
+
 class Solver():
 
     # These weights are almost definitely not optimal, but they have been manually tuned to be "good enough"
     WEIGHTS = [
         20,  # wells
-        10,  # gaps
-        -10   # row
+        20,  # gaps
+        -5   # row
     ]
     WEIGHTS_VECTOR = np.array(WEIGHTS, dtype=np.int8)
 
     def __init__(self):
+        self.ban_hold = False
         pass
     
-    def get_all_outcomes(self, playfield, tetromino, ban_hold=False):
+    def get_all_outcomes(self, playfield, tetromino):
         """ Get all potential outcomes so that they can be scored and filtered """
         assert(isinstance(playfield, Playfield))
-        assert(isinstance(tetromino, Tetromino))
+
+        if tetromino is None:
+            return [{
+                'playfield' : playfield,
+                'tetromino': None,
+                'rotations' : 0,
+                'row' : playfield.HEIGHT,
+                'col' : 0,
+                'hold_swap' : False,
+                'gaps' : 0,
+                'wells' : 0 }]
 
         outcomes = []
         hold_swap_options = [False]
-        if not ban_hold:
+        if not self.ban_hold:
             hold_swap_options += [True]
 
         for hold_swap in hold_swap_options:
@@ -39,9 +52,8 @@ class Solver():
                     'row' : outcome_playfield.HEIGHT,
                     'col' : 0,
                     'hold_swap' : hold_swap,
-                    'gaps' : outcome_playfield.get_gap_count(),
-                    'wells' : outcome_playfield.get_well_count(),
-                })
+                    'gaps' : 0,
+                    'wells' : 0})
                 continue
             else:
                 if hold_swap:
@@ -79,14 +91,16 @@ class Solver():
         ], dtype=np.uint8)
         return np.dot(score_vector, Solver.WEIGHTS_VECTOR)
 
-    def decide_outcome(self, playfield, tetromino, ban_hold=False):
+    def decide_outcome(self, playfield, tetromino):
         """ Score and filter all potential outcomes to determine the best action to take. Return outcome that has lowest cost """
-        outcomes = self.get_all_outcomes(playfield, tetromino, ban_hold)
+        outcomes = self.get_all_outcomes(playfield, tetromino)
         for index, outcome in enumerate(outcomes):
             outcomes[index]['cost'] = self.get_outcome_cost(outcome)
         # Filter out any outcome that doesn't have the lowest cost
         lowest_cost = min([outcome['cost'] for outcome in outcomes])
         outcomes = list(filter(lambda outcome: outcome['cost'] == lowest_cost, outcomes))
+        # if None was swapped out, ban hold for next turn
+        self.ban_hold = outcomes[0]['tetromino'] == None
         # With multiple lowest cost outcomes, selection is only affected by number of keystrokes outcome requires.
         # The lowest outcome in the list is more likely to not require swap and not require any rotations
         return outcomes[0]

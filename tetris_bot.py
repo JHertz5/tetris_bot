@@ -24,7 +24,9 @@ while not game_over:
     chosen_outcome = solver.decide_outcome(playfield, current_tetromino)
 
     # execute outcome
-    next_shape = agent.execute_outcome_and_sample(chosen_outcome, interval=0.04, sleep=0.4)
+    next_shape = agent.execute_outcome_and_sample(chosen_outcome,
+                                                  interval=0.04,
+                                                  sleep=0.4)
     playfield.execute_outcome(chosen_outcome, current_tetromino)
 
     # decode old sample and get new sample

@@ -3,8 +3,6 @@
 
 import numpy as np
 
-# Tetromino stored as np array that can be superimposed onto playing field array. This class handles rotations of the tetromino
-
 class Tetromino():
 
     SHAPES = ['I', 'O', 'T', 'S', 'Z', 'J', 'L']
@@ -79,9 +77,12 @@ class Tetromino():
         """ Rotate tetromino back to original position """
         self.rotate(-self.rotations)
         return self
-    
+
     def spawn_column(self):
-        """ Return column aligned with the spawn point of left side of the tetromino grid. """
+        """
+        Return column aligned with the spawn point of left side of the
+        tetromino grid.
+        """
         if self.shape is 'O':
             return 4
         else:
@@ -89,20 +90,27 @@ class Tetromino():
 
     def flat(self):
         return self.grid.flat
-    
+
     def copy(self):
         """ Return shallow copy of self """
         return Tetromino(self.shape, self.rotations)
 
     def elevation(self, col):
-        """ Return number of empty spaces from bottom to lowest filled block in specified column  """
+        """
+        Return number of empty spaces from bottom to lowest filled block
+        in specified column .
+        """
         if col < 0 or col >= self.width():
             raise ValueError('{} is not 0 <= col < width'.format(col))
         # get row of lowest filled block in column
         return (np.flip(self.grid[:,col] != 0)).argmax()
 
     def rotation_column_offset(self):
-        """ Performing rotations shifts the column alignment of the block. Return the difference in column alignment between the spawn state and the rotated state. """
+        """
+        Performing rotations shifts the column alignment of the block.
+        Return the difference in column alignment between the spawn state and
+        the rotated state.
+        """
         if self.shape is 'O':
             return 0
         elif self.shape is 'I':
@@ -125,4 +133,4 @@ if __name__ == "__main__":
     print(tetromino)
     tetromino = Tetromino('L', 3)
     print(tetromino)
-    
+

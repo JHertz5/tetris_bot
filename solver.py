@@ -1,5 +1,6 @@
 #!usr/bin/env python3
-# Given playfield and tetromino, decide best action and determine moves needed to take action.
+# Given playfield and tetromino, decide best action and determine moves needed
+# to take action.
 
 import numpy as np
 import random
@@ -9,20 +10,23 @@ from playfield import Playfield
 
 class Solver():
 
-    # These weights are almost definitely not optimal, but they have been manually tuned to be "good enough"
+    # These weights are not optimal, but they have been manually tuned to be
+    # "good enough"
     WEIGHTS = [20, # wells
                20, # gaps
                5,  # gap depth
                -10] # row
-    
+
     WEIGHTS_VECTOR = np.array(WEIGHTS, dtype=np.int8)
 
     def __init__(self):
         self.ban_hold = False
         pass
-    
+
     def get_all_outcomes(self, playfield, tetromino):
-        """ Get all potential outcomes so that they can be scored and filtered """
+        """
+        Get all potential outcomes so that they can be scored and filtered.
+        """
         assert(isinstance(playfield, Playfield))
 
         if tetromino is None:
@@ -95,17 +99,23 @@ class Solver():
         return np.dot(score_vector, Solver.WEIGHTS_VECTOR)
 
     def decide_outcome(self, playfield, tetromino):
-        """ Score and filter all potential outcomes to determine the best action to take. Return outcome that has lowest cost """
+        """
+        Score and filter all potential outcomes to determine the best action
+        to take. Return outcome that has lowest cost.
+        """
         outcomes = self.get_all_outcomes(playfield, tetromino)
         for index, outcome in enumerate(outcomes):
             outcomes[index]['cost'] = self.get_outcome_cost(outcome)
         # Filter out any outcome that doesn't have the lowest cost
         lowest_cost = min([outcome['cost'] for outcome in outcomes])
-        outcomes = list(filter(lambda outcome: outcome['cost'] == lowest_cost, outcomes))
+        outcomes = list(filter(lambda outcome: outcome['cost'] == lowest_cost,
+                               outcomes))
         # if None was swapped out, ban hold for next turn
         self.ban_hold = outcomes[0]['tetromino'] == None
-        # With multiple lowest cost outcomes, selection is only affected by number of keystrokes outcome requires.
-        # The lowest outcome in the list is more likely to not require swap and not require any rotations
+        # With multiple lowest cost outcomes, selection is only affected by
+        # number of keystrokes outcome requires. The lowest outcome in the
+        # list is more likely to not require swap and not require any
+        # rotations
         return outcomes[0]
 
 if __name__ == "__main__":

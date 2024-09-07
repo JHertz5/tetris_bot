@@ -117,25 +117,3 @@ class Solver():
         # list is more likely to not require swap and not require any
         # rotations
         return outcomes[0]
-
-if __name__ == "__main__":
-    solver = Solver()
-    playfield = Playfield()
-    game_over = False
-
-    shape = random.choice(Tetromino.SHAPES)
-    tetromino = Tetromino(shape)
-    tetromino = playfield.hold_tetromino(tetromino)
-
-    score = 0
-    while not game_over:
-        shape = random.choice(Tetromino.SHAPES)
-        tetromino = Tetromino(shape)
-        chosen_outcome = solver.decide_outcome(playfield, tetromino)
-        playfield.execute_outcome(chosen_outcome, tetromino)
-        print('score = {}, cost = {}'.format(score, chosen_outcome['cost']))
-        print(playfield)
-        score += 1
-    print('GAME OVER, score = {}'.format(score))
-    print(chosen_outcome)
-

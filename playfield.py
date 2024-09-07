@@ -23,7 +23,7 @@ class Playfield:
         if held_tetromino is not None:
             assert isinstance(held_tetromino, Tetromino)
         self.held_tetromino = held_tetromino
-        self.num_lines_cleared = 0
+        self.num_rows_cleared = 0
         self.num_blocks_placed = 0
 
     def __str__(self):
@@ -115,7 +115,7 @@ class Playfield:
         row = self._get_drop_row_(tetromino, col)
         self._lock_tetromino_(tetromino, (row, col))
         num_cleared_rows = self._clear_filled_rows_()
-        self.num_lines_cleared += num_cleared_rows
+        self.num_rows_cleared += num_cleared_rows
         self.num_blocks_placed += 1
         return row
 
@@ -173,3 +173,20 @@ class Playfield:
         Return true if the game is over.
         """
         return max(self.get_heights()) == self.HEIGHT
+
+    def print_display(self):
+        """
+        Print a graphical representation of the playfield.
+        """
+        # Clear the console using an ANSI escape code
+        # See https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_(Control_Sequence_Introducer)_sequences for more
+        # information
+        print("\033c\033[3J", end="")
+        # Print the progress metrics
+        print(
+            "num blocks placed = {}, num rows cleared = {}".format(
+                self.num_blocks_placed, self.num_rows_cleared
+            )
+        )
+        # Print the playfield
+        print(self)

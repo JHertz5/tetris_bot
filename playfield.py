@@ -177,7 +177,6 @@ class Playfield():
         if tetromino is not None:
             tetromino.rotate(outcome['rotations'])
             self.drop_tetromino(tetromino, outcome['col'])
-        print(self)
 
     def is_game_over(self):
         """

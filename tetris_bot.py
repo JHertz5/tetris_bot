@@ -7,32 +7,38 @@ from playfield import Playfield
 from solver import Solver
 from agent import Agent
 
-agent = Agent()
-sample = 'waiting'
-solver = Solver()
-playfield = Playfield()
+def main():
 
-current_tetromino = agent.start_game()
+    agent = Agent()
+    sample = 'waiting'
+    solver = Solver()
+    playfield = Playfield()
 
-block_num = 0
-game_over = False
+    current_tetromino = agent.start_game()
 
-while not game_over:
-    block_num += 1
+    block_num = 0
+    game_over = False
 
-    # decide outcome
-    chosen_outcome = solver.decide_outcome(playfield, current_tetromino)
+    while not game_over:
+        block_num += 1
 
-    # execute outcome
-    next_shape = agent.execute_outcome_and_sample(chosen_outcome,
-                                                  interval=0.04,
-                                                  sleep=0.4)
-    playfield.execute_outcome(chosen_outcome, current_tetromino)
+        # decide outcome
+        chosen_outcome = solver.decide_outcome(playfield, current_tetromino)
 
-    # decode old sample and get new sample
-    try:
-        current_tetromino = Tetromino(next_shape)
-    except:
-        game_over = True
+        # execute outcome
+        next_shape = agent.execute_outcome_and_sample(chosen_outcome,
+                                                    interval=0.04,
+                                                    sleep=0.4)
+        playfield.execute_outcome(chosen_outcome, current_tetromino)
 
-print('GAME OVER, {} blocks placed'.format(block_num))
+        # decode old sample and get new sample
+        try:
+            current_tetromino = Tetromino(next_shape)
+        except:
+            game_over = True
+
+    print('GAME OVER, {} blocks placed'.format(block_num))
+
+
+if __name__ == '__main__':
+    main()

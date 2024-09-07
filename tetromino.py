@@ -104,6 +104,12 @@ class Tetromino:
         else:
             return [0, 1, 0, 0][self.rotations]
 
+    def get_zero_padded_grid(self):
+        padded_grid = np.zeros((2, 4), dtype=np.uint8)
+        height, width = self.grid.shape
+        padded_grid[0:height, 0:width] = self.grid
+        return padded_grid
+
 
 if __name__ == "__main__":
     tetromino = Tetromino("I")

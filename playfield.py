@@ -48,28 +48,26 @@ class Playfield:
             "    " + " ".join([str(x) for x in range(self.MAIN_BOX_WIDTH)])
         )
 
-        # TODO maybe make this as a separate list and append it on afterwards? Once you've figured out the basics.
+        hold_str = []
         # Print the top of the hold box
-        print_str[0] += " ┌" + "─" * (self.HOLD_BOX_WIDTH * 2 + 1) + "┐"
-        print_str[1] += " │  H O L D  │"
-
-        held_tetromino_grid = self.held_tetromino.grid.copy()
-        held_tetromino_grid.resize((2, 4), refcheck=False)
+        hold_str.append(" ┌" + "─" * (self.HOLD_BOX_WIDTH * 2 + 1) + "┐")
+        hold_str.append(" │  H O L D  │")
+        # Get the zero-padded shape and print it into the hold box
         held_tetromino_grid = self.held_tetromino.get_zero_padded_grid()
-
         for row in range(self.HOLD_BOX_HEIGHT):
-            print_str[row + 2] += (
+            hold_str.append(
                 " │  "
                 + " ".join(
                     Tetromino.SHAPE_PRINT[x] for x in held_tetromino_grid[row, :]
                 )
                 + "  │"
             )
-
         # Print the bottom of the hold box
-        print_str[2 + self.HOLD_BOX_HEIGHT] += "".join(
-            [" └" + "─" * (self.HOLD_BOX_WIDTH * 2 + 1) + "┘"]
-        )
+        hold_str.append(" └" + "─" * (self.HOLD_BOX_WIDTH * 2 + 1) + "┘")
+
+        # Append the hold box to the main box
+        for row in range(len(hold_str)):
+            print_str[row] += hold_str[row]
 
         return "\n".join(print_str)
 

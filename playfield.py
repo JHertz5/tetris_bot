@@ -12,17 +12,19 @@ class Playfield:
     WIDTH = 10
 
     def __init__(self, grid=None, held_tetromino=None):
-        # set up grid
+        # Set up grid
         if grid is not None:
             assert isinstance(grid, np.ndarray)
             assert grid.shape == (self.HEIGHT, self.WIDTH)
             self.grid = np.array(grid, dtype=np.uint8)
         else:
             self.grid = np.zeros((self.HEIGHT, self.WIDTH), dtype=np.uint8)
-        # set up held tetromino
+        # Set up held tetromino
         if held_tetromino is not None:
             assert isinstance(held_tetromino, Tetromino)
         self.held_tetromino = held_tetromino
+        self.num_lines_cleared = 0
+        self.num_blocks_placed = 0
 
     def __str__(self):
         print_str = "  ┌" + "─" * (self.WIDTH * 2 + 1) + "┐\n"
@@ -77,19 +79,22 @@ class Playfield:
                 if tetromino[tetr_position] != 0:
                     self.grid[grid_position] = tetromino[tetr_position]
 
-    def _clear_filled_lines_(self):
+    def _clear_filled_rows_(self):
         """
-        Check for and remove filled lines. Return number of lines cleared
+        Check for and remove filled rows. Return a list of the rows cleared
         """
-        num_cleared_lines = np.count_nonzero([row.all() for row in self.grid])
+        # Get the number of the rows that are filled
+        num_cleared_rows = np.count_nonzero([row.all() for row in self.grid])
         # Get rows that are partially filled
         part_rows = np.array(
             [row for row in self.grid if (not row.all() and row.any())]
         )
+        # Reset grid with zeros
         self.grid.fill(0)
+        # Refill the bottom of the grid with the partially filled rows, leaving out rows that were filled.
         if part_rows.any():
             self.grid[self.HEIGHT - part_rows.shape[0] :, :] = part_rows
-        return num_cleared_lines
+        return num_cleared_rows
 
     def hold_tetromino(self, tetromino):
         """
@@ -103,13 +108,15 @@ class Playfield:
 
     def drop_tetromino(self, tetromino, col):
         """
-        Drop tetromino with left side aligned with specified column. Return
-        drop row.
+        Drop tetromino with left side aligned with specified column. This ends the turn, so update the score as
+        required. Return drop row.
         """
         assert isinstance(tetromino, Tetromino)
         row = self._get_drop_row_(tetromino, col)
         self._lock_tetromino_(tetromino, (row, col))
-        self._clear_filled_lines_()
+        num_cleared_rows = self._clear_filled_rows_()
+        self.num_lines_cleared += num_cleared_rows
+        self.num_blocks_placed += 1
         return row
 
     def get_heights(self):

@@ -13,10 +13,9 @@ class Solver:
 
     # These weights are not optimal, but they have been manually tuned to be
     # "good enough"
-    # TODO cleaner as a dict? #13
-    WEIGHTS = [20, 20, 5, -10]  # wells  # gaps  # gap depth  # row
+    WEIGHTS = {"wells": 20, "gaps": 20, "gap depth": 5, "row": -10}
 
-    WEIGHTS_VECTOR = np.array(WEIGHTS, dtype=np.int8)
+    WEIGHTS_VECTOR = np.array(list(WEIGHTS.values()), dtype=np.int8)
 
     def __init__(self):
         self.ban_hold = False

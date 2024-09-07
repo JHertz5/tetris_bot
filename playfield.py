@@ -178,3 +178,9 @@ class Playfield():
             tetromino.rotate(outcome['rotations'])
             self.drop_tetromino(tetromino, outcome['col'])
         print(self)
+
+    def is_game_over(self):
+        """
+        Return true if the game is over.
+        """
+        return max(self.get_heights()) == self.HEIGHT

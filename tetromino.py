@@ -5,7 +5,6 @@ import numpy as np
 
 class Tetromino():
 
-    SHAPES = ['I', 'O', 'T', 'S', 'Z', 'J', 'L']
     SHAPE_PRINT = [
         ' ',
         '\033[38;5;14mI\033[m',  # I -> cyan
@@ -43,6 +42,7 @@ class Tetromino():
                 [0, 0, 7],
                 [7, 7, 7]
             ]}
+    SHAPES = list(SHAPE_GRID.keys())
 
     def __init__(self, shape, rotations=0):
         if shape.upper() in self.SHAPES:

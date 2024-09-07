@@ -19,20 +19,18 @@ def main():
     tetromino = Tetromino(shape)
     tetromino = playfield.hold_tetromino(tetromino)
 
-    num_blocks_placed = 0
     while not playfield.is_game_over():
         shape = random.choice(Tetromino.SHAPES)
         tetromino = Tetromino(shape)
         chosen_outcome = solver.decide_outcome(playfield, tetromino)
         playfield.execute_outcome(chosen_outcome, tetromino)
         print(
-            "num blocks placed = {}, cost = {}".format(
-                num_blocks_placed, chosen_outcome["cost"]
+            "num blocks placed = {}, num lines cleared = {}, cost = {}".format(
+                playfield.num_blocks_placed, playfield.num_lines_cleared, chosen_outcome["cost"]
             )
         )
         print(playfield)
-        num_blocks_placed += 1
-    print("GAME OVER, num blocks placed: {}".format(num_blocks_placed))
+    print("GAME OVER, num blocks placed: {}, num lines cleared: {}".format(playfield.num_blocks_placed, playfield.num_lines_cleared))
 
 
 if __name__ == "__main__":

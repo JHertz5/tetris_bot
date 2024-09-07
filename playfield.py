@@ -8,17 +8,22 @@ from tetromino import Tetromino
 
 class Playfield:
 
-    HEIGHT = 22
-    WIDTH = 10
+    MAIN_BOX_HEIGHT = 22
+    MAIN_BOX_WIDTH = 10
+
+    HOLD_BOX_HEIGHT = 2
+    HOLD_BOX_WIDTH = 5
 
     def __init__(self, grid=None, held_tetromino=None):
         # Set up grid
         if grid is not None:
             assert isinstance(grid, np.ndarray)
-            assert grid.shape == (self.HEIGHT, self.WIDTH)
+            assert grid.shape == (self.MAIN_BOX_HEIGHT, self.MAIN_BOX_WIDTH)
             self.grid = np.array(grid, dtype=np.uint8)
         else:
-            self.grid = np.zeros((self.HEIGHT, self.WIDTH), dtype=np.uint8)
+            self.grid = np.zeros(
+                (self.MAIN_BOX_HEIGHT, self.MAIN_BOX_WIDTH), dtype=np.uint8
+            )
         # Set up held tetromino
         if held_tetromino is not None:
             assert isinstance(held_tetromino, Tetromino)
@@ -27,16 +32,46 @@ class Playfield:
         self.num_blocks_placed = 0
 
     def __str__(self):
-        print_str = "  ┌" + "─" * (self.WIDTH * 2 + 1) + "┐\n"
-        for row in range(self.HEIGHT):
-            print_str += (
+        print_str = []
+        # Print the top of the main box
+        print_str.append("  ┌" + "─" * (self.MAIN_BOX_WIDTH * 2 + 1) + "┐")
+        # Print the rows inside the main box
+        for row in range(self.MAIN_BOX_HEIGHT):
+            print_str.append(
                 "{:2d}│ ".format(row)
                 + " ".join(Tetromino.SHAPE_PRINT[x] for x in self.grid[row, :])
-                + " │\n"
+                + " │"
             )
-        print_str += "  └" + "─" * (self.WIDTH * 2 + 1) + "┘\n"
-        print_str += "    " + " ".join([str(x) for x in range(self.WIDTH)])
-        return print_str
+        # Print the bottom of the main box
+        print_str.append("  └" + "─" * (self.MAIN_BOX_WIDTH * 2 + 1) + "┘")
+        print_str.append(
+            "    " + " ".join([str(x) for x in range(self.MAIN_BOX_WIDTH)])
+        )
+
+        # TODO maybe make this as a separate list and append it on afterwards? Once you've figured out the basics.
+        # Print the top of the hold box
+        print_str[0] += " ┌" + "─" * (self.HOLD_BOX_WIDTH * 2 + 1) + "┐"
+        print_str[1] += " │  H O L D  │"
+
+        held_tetromino_grid = self.held_tetromino.grid.copy()
+        held_tetromino_grid.resize((2, 4), refcheck=False)
+        held_tetromino_grid = self.held_tetromino.get_zero_padded_grid()
+
+        for row in range(self.HOLD_BOX_HEIGHT):
+            print_str[row + 2] += (
+                " │  "
+                + " ".join(
+                    Tetromino.SHAPE_PRINT[x] for x in held_tetromino_grid[row, :]
+                )
+                + "  │"
+            )
+
+        # Print the bottom of the hold box
+        print_str[2 + self.HOLD_BOX_HEIGHT] += "".join(
+            [" └" + "─" * (self.HOLD_BOX_WIDTH * 2 + 1) + "┘"]
+        )
+
+        return "\n".join(print_str)
 
     def _get_drop_row_(self, tetromino, start_col):
         """
@@ -44,10 +79,10 @@ class Playfield:
         is dropped with its left side aligned with the specified column.
         """
         end_col = start_col + tetromino.width()
-        if start_col < 0 or end_col > self.WIDTH:
+        if start_col < 0 or end_col > self.MAIN_BOX_WIDTH:
             raise ValueError("drop puts tetromino out of bounds}")
         # Initialise to lowest possible row
-        drop_row = self.HEIGHT
+        drop_row = self.MAIN_BOX_HEIGHT
         # For each column, get the drop row ignoring other columns. The
         # highest of these is the final drop row
         for tetr_col, grid_col in enumerate(range(start_col, end_col)):
@@ -93,7 +128,7 @@ class Playfield:
         self.grid.fill(0)
         # Refill the bottom of the grid with the partially filled rows, leaving out rows that were filled.
         if part_rows.any():
-            self.grid[self.HEIGHT - part_rows.shape[0] :, :] = part_rows
+            self.grid[self.MAIN_BOX_HEIGHT - part_rows.shape[0] :, :] = part_rows
         return num_cleared_rows
 
     def hold_tetromino(self, tetromino):
@@ -122,8 +157,8 @@ class Playfield:
     def get_heights(self):
         """Return array containing heights of each column"""
         # Append 8 to each column to represent floor
-        grid_with_floor = np.append(self.grid, [[8] * self.WIDTH], axis=0)
-        return self.HEIGHT - (grid_with_floor != 0).argmax(axis=0)
+        grid_with_floor = np.append(self.grid, [[8] * self.MAIN_BOX_WIDTH], axis=0)
+        return self.MAIN_BOX_HEIGHT - (grid_with_floor != 0).argmax(axis=0)
 
     def get_gap_count(self):
         """Return number of gaps in stack"""
@@ -131,15 +166,19 @@ class Playfield:
         return sum(
             [
                 np.count_nonzero(col[top:] == 0)
-                for col, top in zip(self.grid.T, self.HEIGHT - self.get_heights())
+                for col, top in zip(
+                    self.grid.T, self.MAIN_BOX_HEIGHT - self.get_heights()
+                )
             ]
         )
 
     def get_gap_depth(self):
         """Return sum of gap depth in stack"""
         # Get the row of the lowest gap for each column
-        lowest_gaps = self.HEIGHT - (np.flip(self.grid, axis=0) == 0).argmax(axis=0)
-        return sum(lowest_gaps - (self.HEIGHT - self.get_heights()) + 1)
+        lowest_gaps = self.MAIN_BOX_HEIGHT - (np.flip(self.grid, axis=0) == 0).argmax(
+            axis=0
+        )
+        return sum(lowest_gaps - (self.MAIN_BOX_HEIGHT - self.get_heights()) + 1)
 
     def get_well_count(self):
         """
@@ -147,13 +186,13 @@ class Playfield:
         be cleared by I shape.
         """
         # Get height of top filled block in each column
-        col_heights = self.HEIGHT - self.get_heights()
+        col_heights = self.MAIN_BOX_HEIGHT - self.get_heights()
         # Append walls on either side represented with height 0
         col_heights_walled = np.concatenate(([0], col_heights, [0]))
         # Get difference between column height and column height to the
         # left/right for each column
-        left_diffs = col_heights - col_heights_walled[0 : self.WIDTH]
-        right_diffs = col_heights - col_heights_walled[2 : self.WIDTH + 2]
+        left_diffs = col_heights - col_heights_walled[0 : self.MAIN_BOX_WIDTH]
+        right_diffs = col_heights - col_heights_walled[2 : self.MAIN_BOX_WIDTH + 2]
         # If column on both sides is > 2 higher, column is a well
         return sum((left_diffs > 2) & (right_diffs > 2))
 
@@ -172,7 +211,7 @@ class Playfield:
         """
         Return true if the game is over.
         """
-        return max(self.get_heights()) == self.HEIGHT
+        return max(self.get_heights()) == self.MAIN_BOX_HEIGHT
 
     def print_display(self):
         """

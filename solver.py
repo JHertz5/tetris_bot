@@ -33,7 +33,7 @@ class Solver:
                     "playfield": playfield,
                     "tetromino": None,
                     "rotations": 0,
-                    "row": playfield.HEIGHT,
+                    "row": playfield.MAIN_BOX_HEIGHT,
                     "col": 0,
                     "hold_swap": False,
                     "gaps": 0,
@@ -54,7 +54,7 @@ class Solver:
                         "playfield": playfield,
                         "tetromino": None,
                         "rotations": 0,
-                        "row": outcome_playfield.HEIGHT,
+                        "row": outcome_playfield.MAIN_BOX_HEIGHT,
                         "col": 0,
                         "hold_swap": hold_swap,
                         "gaps": 0,
@@ -70,7 +70,7 @@ class Solver:
                     active_tetromino = tetromino
             # Get all outcomes for each hold/rotate permutation of tetromino
             for tetr in [active_tetromino.copy().rotate(n) for n in range(4)]:
-                for col in range(playfield.WIDTH - tetr.width() + 1):
+                for col in range(playfield.MAIN_BOX_WIDTH - tetr.width() + 1):
                     outcome_playfield = playfield.copy()
                     row = outcome_playfield.drop_tetromino(tetr, col)
                     outcomes.append(

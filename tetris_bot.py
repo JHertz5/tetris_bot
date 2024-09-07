@@ -3,6 +3,7 @@
 # Intended for tetris link: https://tetris.com/play-tetris
 
 from tetromino import Tetromino
+from tetromino_queue import TetrominoQueue
 from playfield import Playfield
 from solver import Solver
 
@@ -11,20 +12,21 @@ import random
 
 def main():
 
+    # Initialise game objects
     solver = Solver()
     playfield = Playfield()
-    game_over = False
+    tetromino_queue = TetrominoQueue()
 
-    shape = random.choice(Tetromino.SHAPES)
-    tetromino = Tetromino(shape)
-    tetromino = playfield.hold_tetromino(tetromino)
+    # Get first tetronimo and hold it, since it is always optimal to have a piece held.
+    tetromino = tetromino_queue.get_next()
+    playfield.hold_tetromino(tetromino)
 
     while not playfield.is_game_over():
-        shape = random.choice(Tetromino.SHAPES)
-        tetromino = Tetromino(shape)
+        tetromino = tetromino_queue.get_next()
         chosen_outcome = solver.decide_outcome(playfield, tetromino)
         playfield.execute_outcome(chosen_outcome, tetromino)
         playfield.print_display()
+        print(tetromino_queue)
     print("GAME OVER")
 
 

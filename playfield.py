@@ -36,33 +36,6 @@ class Playfield:
         print_str += "    " + " ".join([str(x) for x in range(self.WIDTH)])
         return print_str
 
-    def _test_position_(self, tetromino, position):
-        """
-        Check whether the tetromino is out of bounds or overlapping existing
-        blocks when in the specified position. It is assumed that position
-        specifies the position of the top left block of the tetromino grid
-        (which may be an empty block).
-        """
-        # Test whether placement puts tetromino out of bounds
-        # TODO #13
-        if (
-            position[1] < 0
-            or position[0] < 0
-            or position[1] + tetromino.width() > self.WIDTH
-            or position[0] + tetromino.height() > self.HEIGHT
-        ):
-            return False
-        # Test for overlap
-        # Get grid area where tetromino would be locked
-        test_grid = self.grid[
-            position[0] : position[0] + tetromino.height(),
-            position[1] : position[1] + tetromino.width(),
-        ]
-        for test_block, tetr_block in zip(test_grid.flat, tetromino.flat()):
-            if test_block != 0 and tetr_block != 0:
-                return False
-        return True
-
     def _get_drop_row_(self, tetromino, start_col):
         """
         Return the row of the top block of the tetromino if the tetromino

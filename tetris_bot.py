@@ -24,13 +24,8 @@ def main():
         tetromino = Tetromino(shape)
         chosen_outcome = solver.decide_outcome(playfield, tetromino)
         playfield.execute_outcome(chosen_outcome, tetromino)
-        print(
-            "num blocks placed = {}, num lines cleared = {}, cost = {}".format(
-                playfield.num_blocks_placed, playfield.num_lines_cleared, chosen_outcome["cost"]
-            )
-        )
-        print(playfield)
-    print("GAME OVER, num blocks placed: {}, num lines cleared: {}".format(playfield.num_blocks_placed, playfield.num_lines_cleared))
+        playfield.print_display()
+    print("GAME OVER")
 
 
 if __name__ == "__main__":

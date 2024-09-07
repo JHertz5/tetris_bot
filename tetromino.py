@@ -83,7 +83,7 @@ class Tetromino():
         Return column aligned with the spawn point of left side of the
         tetromino grid.
         """
-        if self.shape is 'O':
+        if self.shape == 'O':
             return 4
         else:
             return 3
@@ -111,9 +111,9 @@ class Tetromino():
         Return the difference in column alignment between the spawn state and
         the rotated state.
         """
-        if self.shape is 'O':
+        if self.shape == 'O':
             return 0
-        elif self.shape is 'I':
+        elif self.shape == 'I':
             return [0, 2, 0, 1][self.rotations]
         else:
             return [0, 1, 0, 0][self.rotations]

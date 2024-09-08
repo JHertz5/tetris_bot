@@ -3,7 +3,7 @@
 
 import numpy as np
 
-from tetromino import Tetromino
+from .tetromino import Tetromino
 
 
 class Playfield:

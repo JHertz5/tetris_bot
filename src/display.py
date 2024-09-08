@@ -1,9 +1,9 @@
 #!usr/bin/env python3
 # Manage CLI display/printing. A lot of the printing involves ASCII box shapes.
 
-from holder import Holder
-from playfield import Playfield
-from tetromino_queue import TetrominoQueue
+from .holder import Holder
+from .playfield import Playfield
+from .tetromino_queue import TetrominoQueue
 
 BOX_CHAR = {
     "top-left": "┌",

@@ -1,8 +1,8 @@
 #!usr/bin/env python3
 # Manage the queue of tetrominoes
 
-import tetromino
-from tetromino import Tetromino
+from . import tetromino
+from .tetromino import Tetromino
 
 
 class TetrominoQueue:

@@ -1,7 +1,7 @@
 #!usr/bin/env python3
 # Manage the tetromino hold storeage and swapping.
 
-from tetromino import Tetromino
+from .tetromino import Tetromino
 
 
 class Holder:

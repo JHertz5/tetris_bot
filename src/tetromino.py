@@ -84,6 +84,9 @@ class Tetromino:
         return (np.flip(self.grid[:, col] != 0)).argmax()
 
     def get_zero_padded_grid(self):
+        """
+        Return a version of the grid padded to the maximum tetromino dimensions
+        """
         padded_grid = np.zeros(
             (self.SHAPE_MAX_HEIGHT, self.SHAPE_MAX_WIDTH), dtype=np.uint8
         )
@@ -91,8 +94,15 @@ class Tetromino:
         padded_grid[0:height, 0:width] = self.grid
         return padded_grid
 
-    # TODO create function to consolidate stuff from holder and queue
-    # def get_zero_padded_grid_string_list(self):
+    def get_zero_padded_grid_string_list(self):
+        """
+        Return a grid string list of the zero padded grid
+        """
+        print_str = []
+        padded_grid = self.get_zero_padded_grid()
+        for row in range(len(padded_grid)):
+            print_str.append("".join(str(x) for x in padded_grid[row, :]))
+        return print_str
 
 
 def get_random_tetromino():

@@ -9,8 +9,6 @@ from src.playfield import Playfield
 from src.solver import Solver
 from src.display import update_display
 
-import random
-
 
 def main():
 

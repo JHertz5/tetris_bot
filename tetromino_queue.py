@@ -2,6 +2,7 @@
 # Manage the queue of tetrominoes
 
 import tetromino
+from tetromino import Tetromino
 
 
 class TetrominoQueue:
@@ -19,11 +20,12 @@ class TetrominoQueue:
         print_str.append("NEXT")
         # For each shape in the queue, get a grid string
         for tetromino in self.queue:
+            # Append empty line
+            print_str.append(" " * Tetromino.SHAPE_MAX_WIDTH)
             # Get the zero padded shape as a grid string
             tetromino_grid = tetromino.get_zero_padded_grid()
             for row in range(len(tetromino_grid)):
                 print_str.append("".join(str(x) for x in tetromino_grid[row, :]))
-            print_str.append("")
 
         return "\n".join(print_str)
 

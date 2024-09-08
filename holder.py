@@ -16,6 +16,8 @@ class Holder:
         print_str = []
         # Add a title
         print_str.append("HOLD")
+        # Append empty line
+        print_str.append(" " * Tetromino.SHAPE_MAX_WIDTH)
         # Get the zero-padded shape as a grid string
         held_tetromino_grid = self.held_tetromino.get_zero_padded_grid()
         for row in range(len(held_tetromino_grid)):

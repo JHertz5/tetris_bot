@@ -5,8 +5,8 @@
 import numpy as np
 import random
 
-from tetromino import Tetromino
-from playfield import Playfield
+from .tetromino import Tetromino
+from .playfield import Playfield
 
 
 class Solver:

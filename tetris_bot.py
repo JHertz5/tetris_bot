@@ -2,12 +2,12 @@
 # Attempts to play tetris using simple CV and keyboard inputs
 # Intended for tetris link: https://tetris.com/play-tetris
 
-import tetromino
-from holder import Holder
-from tetromino_queue import TetrominoQueue
-from playfield import Playfield
-from solver import Solver
-from display import update_display
+from src import tetromino
+from src.holder import Holder
+from src.tetromino_queue import TetrominoQueue
+from src.playfield import Playfield
+from src.solver import Solver
+from src.display import update_display
 
 import random
 

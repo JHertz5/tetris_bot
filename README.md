@@ -1,2 +1,5 @@
 # tetris_bot
-Bot using rudimentary CV and simulating keystrokes in order to play tetris
+
+Automated tetris game
+
+![example](./img/example.gif)

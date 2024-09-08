@@ -18,13 +18,12 @@ def main():
     tetromino_queue = TetrominoQueue()
 
     # Get first tetronimo and hold it, since it is always optimal to have a piece held.
-    tetromino = tetromino_queue.get_next()
-    playfield.hold_tetromino(tetromino)
+    playfield.hold_tetromino(tetromino_queue.get_next())
 
     while not playfield.is_game_over():
-        tetromino = tetromino_queue.get_next()
-        chosen_outcome = solver.decide_outcome(playfield, tetromino)
-        playfield.execute_outcome(chosen_outcome, tetromino)
+        current_tetromino = tetromino_queue.get_next()
+        chosen_outcome = solver.decide_outcome(playfield, current_tetromino)
+        playfield.execute_outcome(chosen_outcome, current_tetromino)
         playfield.print_display()
         print(tetromino_queue)
     print("GAME OVER")

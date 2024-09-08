@@ -11,6 +11,7 @@ from playfield import Playfield
 
 class Solver:
 
+    # These weights define how costly each move is. A higher cost is worse. See get_outcome_cost for details.
     # These weights are not optimal, but they have been manually tuned to be
     # "good enough"
     WEIGHTS = {"wells": 20, "gaps": 20, "gap depth": 5, "row": -10}

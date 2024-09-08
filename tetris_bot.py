@@ -1,6 +1,5 @@
 #!usr/bin/env python3
-# Attempts to play tetris using simple CV and keyboard inputs
-# Intended for tetris link: https://tetris.com/play-tetris
+# Plays tetris using by modelling, solving and displaying the game
 
 from src import tetromino
 from src.holder import Holder

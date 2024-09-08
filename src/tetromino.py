@@ -83,22 +83,10 @@ class Tetromino:
         # get row of lowest filled block in column
         return (np.flip(self.grid[:, col] != 0)).argmax()
 
-    # TODO remove unused function
-    def rotation_column_offset(self):
-        """
-        Performing rotations shifts the column alignment of the block.
-        Return the difference in column alignment between the spawn state and
-        the rotated state.
-        """
-        if self.shape == "O":
-            return 0
-        elif self.shape == "I":
-            return [0, 2, 0, 1][self.rotations]
-        else:
-            return [0, 1, 0, 0][self.rotations]
-
     def get_zero_padded_grid(self):
-        padded_grid = np.zeros((self.SHAPE_MAX_HEIGHT, self.SHAPE_MAX_WIDTH), dtype=np.uint8)
+        padded_grid = np.zeros(
+            (self.SHAPE_MAX_HEIGHT, self.SHAPE_MAX_WIDTH), dtype=np.uint8
+        )
         height, width = self.grid.shape
         padded_grid[0:height, 0:width] = self.grid
         return padded_grid

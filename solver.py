@@ -11,6 +11,7 @@ from playfield import Playfield
 
 class Solver:
 
+    # These weights define how costly each move is. A higher cost is worse. See get_outcome_cost for details.
     # These weights are not optimal, but they have been manually tuned to be
     # "good enough"
     WEIGHTS = {"wells": 20, "gaps": 20, "gap depth": 5, "row": -10}
@@ -21,13 +22,13 @@ class Solver:
         self.ban_hold = False
         pass
 
-    def get_all_outcomes(self, playfield, tetromino):
+    def get_all_outcomes(self, playfield, current_tetromino, held_tetromino):
         """
         Get all potential outcomes so that they can be scored and filtered.
         """
         assert isinstance(playfield, Playfield)
 
-        if tetromino is None:
+        if current_tetromino is None:
             return [
                 {
                     "playfield": playfield,
@@ -48,7 +49,7 @@ class Solver:
             hold_swap_options += [True]
 
         for hold_swap in hold_swap_options:
-            if hold_swap and playfield.held_tetromino is None:
+            if hold_swap and held_tetromino is None:
                 outcomes.append(
                     {
                         "playfield": playfield,
@@ -65,9 +66,9 @@ class Solver:
                 continue
             else:
                 if hold_swap:
-                    active_tetromino = playfield.held_tetromino
+                    active_tetromino = held_tetromino
                 else:
-                    active_tetromino = tetromino
+                    active_tetromino = current_tetromino
             # Get all outcomes for each hold/rotate permutation of tetromino
             for tetr in [active_tetromino.copy().rotate(n) for n in range(4)]:
                 for col in range(playfield.MAIN_BOX_WIDTH - tetr.width() + 1):
@@ -102,12 +103,12 @@ class Solver:
         )
         return np.dot(score_vector, Solver.WEIGHTS_VECTOR)
 
-    def decide_outcome(self, playfield, tetromino):
+    def decide_outcome(self, playfield, current_tetromino, held_tetromino):
         """
         Score and filter all potential outcomes to determine the best action
         to take. Return outcome that has lowest cost.
         """
-        outcomes = self.get_all_outcomes(playfield, tetromino)
+        outcomes = self.get_all_outcomes(playfield, current_tetromino, held_tetromino)
         for index, outcome in enumerate(outcomes):
             outcomes[index]["cost"] = self.get_outcome_cost(outcome)
         # Filter out any outcome that doesn't have the lowest cost

@@ -1,10 +1,7 @@
 #!usr/bin/env python3
 # Manage the queue of tetrominoes
 
-import numpy as np
-import random
-
-from tetromino import Tetromino
+import tetromino
 
 
 class TetrominoQueue:
@@ -14,7 +11,7 @@ class TetrominoQueue:
     def __init__(self):
         self.queue = []
         for _ in range(self.LENGTH):
-            self.queue.append(self.get_random_tetromino())
+            self.queue.append(tetromino.get_random_tetromino())
 
     def __str__(self):
         return " ".join([str(tetronimo) for tetronimo in self.queue])
@@ -25,15 +22,9 @@ class TetrominoQueue:
         Tetromino
         """
         # Append a new tetromino to the back of the queue.
-        self.queue.append(self.get_random_tetromino())
+        self.queue.append(tetromino.get_random_tetromino())
         # Pop and return the tetromino at the front of the queue.
         return self.queue.pop(0)
-
-    def get_random_tetromino(self):
-        """
-        Return a randomly selected tetromino
-        """
-        return Tetromino(random.choice(Tetromino.SHAPES))
 
 
 if __name__ == "__main__":

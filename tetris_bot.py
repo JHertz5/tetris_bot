@@ -2,7 +2,8 @@
 # Attempts to play tetris using simple CV and keyboard inputs
 # Intended for tetris link: https://tetris.com/play-tetris
 
-from tetromino import Tetromino
+import tetromino
+from holder import Holder
 from tetromino_queue import TetrominoQueue
 from playfield import Playfield
 from solver import Solver
@@ -16,16 +17,16 @@ def main():
     solver = Solver()
     playfield = Playfield()
     tetromino_queue = TetrominoQueue()
+    holder = Holder()
 
     # Get first tetronimo and hold it, since it is always optimal to have a piece held.
-    tetromino = tetromino_queue.get_next()
-    playfield.hold_tetromino(tetromino)
+    holder.swap(tetromino.get_random_tetromino())
 
     while not playfield.is_game_over():
-        tetromino = tetromino_queue.get_next()
-        chosen_outcome = solver.decide_outcome(playfield, tetromino)
-        playfield.execute_outcome(chosen_outcome, tetromino)
-        playfield.print_display()
+        current_tetromino = tetromino_queue.get_next()
+        chosen_outcome = solver.decide_outcome(playfield, current_tetromino, holder.held_tetromino)
+        playfield.execute_outcome(chosen_outcome, current_tetromino, holder)
+        playfield.print_display(holder)
         print(tetromino_queue)
     print("GAME OVER")
 

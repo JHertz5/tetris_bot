@@ -6,8 +6,6 @@ from tetromino import Tetromino
 
 class Holder:
 
-    HOLD_BOX_HEIGHT = 2
-
     def __init__(self, held_tetromino=None):
         # Set up held tetromino
         if held_tetromino is not None:
@@ -18,9 +16,11 @@ class Holder:
         print_str = []
         # Add a title
         print_str.append("HOLD")
+        # Append empty line
+        print_str.append(" " * Tetromino.SHAPE_MAX_WIDTH)
         # Get the zero-padded shape as a grid string
         held_tetromino_grid = self.held_tetromino.get_zero_padded_grid()
-        for row in range(self.HOLD_BOX_HEIGHT):
+        for row in range(len(held_tetromino_grid)):
             print_str.append("".join(str(x) for x in held_tetromino_grid[row, :]))
 
         return "\n".join(print_str)

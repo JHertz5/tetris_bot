@@ -16,8 +16,9 @@ class Holder:
 
     def __str__(self):
         print_str = []
+        # Add a title
         print_str.append("HOLD")
-        # Get the zero-padded shape and print it into the hold box
+        # Get the zero-padded shape as a grid string
         held_tetromino_grid = self.held_tetromino.get_zero_padded_grid()
         for row in range(self.HOLD_BOX_HEIGHT):
             print_str.append("".join(str(x) for x in held_tetromino_grid[row, :]))

@@ -25,7 +25,9 @@ def main():
 
     while not playfield.is_game_over():
         current_tetromino = tetromino_queue.get_next()
-        chosen_outcome = solver.decide_outcome(playfield, current_tetromino, holder.held_tetromino)
+        chosen_outcome = solver.decide_outcome(
+            playfield, current_tetromino, holder.held_tetromino
+        )
         playfield.execute_outcome(chosen_outcome, current_tetromino, holder)
         update_display(playfield, holder)
         print(tetromino_queue)

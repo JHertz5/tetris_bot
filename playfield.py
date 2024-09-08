@@ -26,15 +26,9 @@ class Playfield:
 
     def __str__(self):
         print_str = []
-        # Print the rows inside the playfield box
+        # Get the rows inside the playfield grid as a grid string
         for row in range(self.MAIN_BOX_HEIGHT):
-            print_str.append(
-                "".join(str(x) for x in self.grid[row, :])
-            )
-
-        # Append the hold box to the playfield box
-        # for row in range(len(hold_str)):
-        #     print_str[row] += hold_str[row]
+            print_str.append("".join(str(x) for x in self.grid[row, :]))
 
         return "\n".join(print_str)
 
@@ -167,4 +161,3 @@ class Playfield:
         Return true if the game is over.
         """
         return max(self.get_heights()) == self.MAIN_BOX_HEIGHT
-

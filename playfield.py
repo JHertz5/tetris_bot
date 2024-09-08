@@ -26,20 +26,11 @@ class Playfield:
 
     def __str__(self):
         print_str = []
-        # Print the top of the playfield box
-        print_str.append("  ┌" + "─" * (self.MAIN_BOX_WIDTH * 2 + 1) + "┐")
         # Print the rows inside the playfield box
         for row in range(self.MAIN_BOX_HEIGHT):
             print_str.append(
-                "{:2d}│ ".format(row)
-                + " ".join(Tetromino.SHAPE_PRINT[x] for x in self.grid[row, :])
-                + " │"
+                "".join(str(x) for x in self.grid[row, :])
             )
-        # Print the bottom of the playfield box
-        print_str.append("  └" + "─" * (self.MAIN_BOX_WIDTH * 2 + 1) + "┘")
-        print_str.append(
-            "    " + " ".join([str(x) for x in range(self.MAIN_BOX_WIDTH)])
-        )
 
         # Append the hold box to the playfield box
         # for row in range(len(hold_str)):
@@ -177,20 +168,3 @@ class Playfield:
         """
         return max(self.get_heights()) == self.MAIN_BOX_HEIGHT
 
-    def print_display(self, holder):
-        """
-        Print a graphical representation of the playfield.
-        """
-        # Clear the console using an ANSI escape code
-        # See https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_(Control_Sequence_Introducer)_sequences for more
-        # information
-        print("\033c\033[3J", end="")
-        # Print the progress metrics
-        print(
-            "num blocks placed = {}, num rows cleared = {}".format(
-                self.num_blocks_placed, self.num_rows_cleared
-            )
-        )
-        # Print the playfield
-        print(self)
-        print(holder)

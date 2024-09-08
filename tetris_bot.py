@@ -29,8 +29,7 @@ def main():
             playfield, current_tetromino, holder.held_tetromino
         )
         playfield.execute_outcome(chosen_outcome, current_tetromino, holder)
-        update_display(playfield, holder)
-        print(tetromino_queue)
+        update_display(playfield, holder, tetromino_queue)
     print("GAME OVER")
 
 

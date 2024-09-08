@@ -19,6 +19,8 @@ class Tetromino:
         "L": [[0, 0, 7], [7, 7, 7]],
     }
     SHAPES = list(SHAPE_GRID.keys())
+    # TODO remove magic number
+    SHAPE_MAX_WIDTH = 4
 
     def __init__(self, shape, rotations=0):
         if shape.upper() in self.SHAPES:

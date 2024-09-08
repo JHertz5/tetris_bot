@@ -11,10 +11,7 @@ class Playfield:
     MAIN_BOX_HEIGHT = 22
     MAIN_BOX_WIDTH = 10
 
-    HOLD_BOX_HEIGHT = 2
-    HOLD_BOX_WIDTH = 5
-
-    def __init__(self, grid=None, held_tetromino=None):
+    def __init__(self, grid=None):
         # Set up grid
         if grid is not None:
             assert isinstance(grid, np.ndarray)
@@ -24,50 +21,29 @@ class Playfield:
             self.grid = np.zeros(
                 (self.MAIN_BOX_HEIGHT, self.MAIN_BOX_WIDTH), dtype=np.uint8
             )
-        # Set up held tetromino
-        if held_tetromino is not None:
-            assert isinstance(held_tetromino, Tetromino)
-        self.held_tetromino = held_tetromino
         self.num_rows_cleared = 0
         self.num_blocks_placed = 0
 
     def __str__(self):
         print_str = []
-        # Print the top of the main box
+        # Print the top of the playfield box
         print_str.append("  ┌" + "─" * (self.MAIN_BOX_WIDTH * 2 + 1) + "┐")
-        # Print the rows inside the main box
+        # Print the rows inside the playfield box
         for row in range(self.MAIN_BOX_HEIGHT):
             print_str.append(
                 "{:2d}│ ".format(row)
                 + " ".join(Tetromino.SHAPE_PRINT[x] for x in self.grid[row, :])
                 + " │"
             )
-        # Print the bottom of the main box
+        # Print the bottom of the playfield box
         print_str.append("  └" + "─" * (self.MAIN_BOX_WIDTH * 2 + 1) + "┘")
         print_str.append(
             "    " + " ".join([str(x) for x in range(self.MAIN_BOX_WIDTH)])
         )
 
-        hold_str = []
-        # Print the top of the hold box
-        hold_str.append(" ┌" + "─" * (self.HOLD_BOX_WIDTH * 2 + 1) + "┐")
-        hold_str.append(" │  H O L D  │")
-        # Get the zero-padded shape and print it into the hold box
-        held_tetromino_grid = self.held_tetromino.get_zero_padded_grid()
-        for row in range(self.HOLD_BOX_HEIGHT):
-            hold_str.append(
-                " │  "
-                + " ".join(
-                    Tetromino.SHAPE_PRINT[x] for x in held_tetromino_grid[row, :]
-                )
-                + "  │"
-            )
-        # Print the bottom of the hold box
-        hold_str.append(" └" + "─" * (self.HOLD_BOX_WIDTH * 2 + 1) + "┘")
-
-        # Append the hold box to the main box
-        for row in range(len(hold_str)):
-            print_str[row] += hold_str[row]
+        # Append the hold box to the playfield box
+        # for row in range(len(hold_str)):
+        #     print_str[row] += hold_str[row]
 
         return "\n".join(print_str)
 
@@ -129,16 +105,6 @@ class Playfield:
             self.grid[self.MAIN_BOX_HEIGHT - part_rows.shape[0] :, :] = part_rows
         return num_cleared_rows
 
-    def hold_tetromino(self, tetromino):
-        """
-        Store tetromino (without rotations) and return previously held
-        tetromino (if there is one)
-        """
-        assert isinstance(tetromino, Tetromino)
-        swap = self.held_tetromino
-        self.held_tetromino = tetromino.reset_rotations()
-        return swap
-
     def drop_tetromino(self, tetromino, col):
         """
         Drop tetromino with left side aligned with specified column. This ends the turn, so update the score as
@@ -195,11 +161,11 @@ class Playfield:
         return sum((left_diffs > 2) & (right_diffs > 2))
 
     def copy(self):
-        return Playfield(self.grid, self.held_tetromino)
+        return Playfield(self.grid)
 
-    def execute_outcome(self, outcome, tetromino):
+    def execute_outcome(self, outcome, tetromino, holder):
         if outcome["hold_swap"]:
-            tetromino = self.hold_tetromino(tetromino)
+            tetromino = holder.swap(tetromino)
         # If hold swap returned an empty Tetromino, skip movement
         if tetromino is not None:
             tetromino.rotate(outcome["rotations"])
@@ -211,7 +177,7 @@ class Playfield:
         """
         return max(self.get_heights()) == self.MAIN_BOX_HEIGHT
 
-    def print_display(self):
+    def print_display(self, holder):
         """
         Print a graphical representation of the playfield.
         """
@@ -227,3 +193,4 @@ class Playfield:
         )
         # Print the playfield
         print(self)
+        print(holder)

@@ -2,6 +2,7 @@
 # Model tetromino as numpy array
 
 import numpy as np
+import random
 
 
 class Tetromino:
@@ -109,6 +110,13 @@ class Tetromino:
         height, width = self.grid.shape
         padded_grid[0:height, 0:width] = self.grid
         return padded_grid
+
+
+def get_random_tetromino():
+    """
+    Return a randomly selected tetromino
+    """
+    return Tetromino(random.choice(Tetromino.SHAPES))
 
 
 if __name__ == "__main__":

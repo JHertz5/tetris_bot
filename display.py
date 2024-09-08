@@ -111,5 +111,6 @@ def update_display(playfield, holder):
     # Rejoin and print the display string list.
     print("\n".join(display_str_list))
 
+
 if __name__ == "__main__":
     print(get_str_in_box("TESTING\nTEST   "))

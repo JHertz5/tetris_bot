@@ -81,6 +81,7 @@ class Tetromino:
         # get row of lowest filled block in column
         return (np.flip(self.grid[:, col] != 0)).argmax()
 
+    # TODO remove unused function
     def rotation_column_offset(self):
         """
         Performing rotations shifts the column alignment of the block.
@@ -95,10 +96,14 @@ class Tetromino:
             return [0, 1, 0, 0][self.rotations]
 
     def get_zero_padded_grid(self):
+        # TODO remove magic numbers,
         padded_grid = np.zeros((2, 4), dtype=np.uint8)
         height, width = self.grid.shape
         padded_grid[0:height, 0:width] = self.grid
         return padded_grid
+
+    # TODO create function to consolidate stuff from holder and queue
+    # def get_zero_padded_grid_string_list(self):
 
 
 def get_random_tetromino():

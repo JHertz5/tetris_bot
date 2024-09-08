@@ -100,11 +100,16 @@ def update_display(playfield, holder):
             playfield.num_blocks_placed, playfield.num_rows_cleared
         )
     )
-    # Print the playfield
-    print(get_display_element_string(playfield))
-    # Print the holder box
-    print(get_display_element_string(holder))
+    # Generate the string lists for individual elements.
+    display_str_list = get_display_element_string(playfield).split("\n")
+    holder_str_list = get_display_element_string(holder).split("\n")
 
+    # Place the holder box besides the playfield box
+    for row in range(len(holder_str_list)):
+        display_str_list[row] += "  " + holder_str_list[row]
+
+    # Rejoin and print the display string list.
+    print("\n".join(display_str_list))
 
 if __name__ == "__main__":
     print(get_str_in_box("TESTING\nTEST   "))

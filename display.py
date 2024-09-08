@@ -1,6 +1,10 @@
 #!usr/bin/env python3
 # Manage CLI display/printing. A lot of the printing involves ASCII box shapes.
 
+from holder import Holder
+from playfield import Playfield
+from tetromino_queue import TetrominoQueue
+
 BOX_CHAR = {
     "top-left": "┌",
     "top-right": "┐",
@@ -68,8 +72,12 @@ def colourise_string(input_str):
     return colourised_string
 
 
-def get_display_string(playfield):
-    print(playfield)
+def get_display_element_string(element):
+    """
+    Take the display element and produce a colourised string in a box
+    """
+    assert isinstance(element, (Playfield, Holder, TetrominoQueue))
+    return colourise_string(get_str_in_box(str(element)))
 
 
 def clear_console_display():
@@ -93,11 +101,9 @@ def update_display(playfield, holder):
         )
     )
     # Print the playfield
-    playfield_box = get_str_in_box(str(playfield))
-    print(colourise_string(playfield_box))
+    print(get_display_element_string(playfield))
     # Print the holder box
-    holder_box = get_str_in_box(str(holder))
-    print(colourise_string(holder_box))
+    print(get_display_element_string(holder))
 
 
 if __name__ == "__main__":

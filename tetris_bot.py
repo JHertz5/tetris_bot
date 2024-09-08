@@ -7,6 +7,7 @@ from holder import Holder
 from tetromino_queue import TetrominoQueue
 from playfield import Playfield
 from solver import Solver
+from display import update_display
 
 import random
 
@@ -24,9 +25,11 @@ def main():
 
     while not playfield.is_game_over():
         current_tetromino = tetromino_queue.get_next()
-        chosen_outcome = solver.decide_outcome(playfield, current_tetromino, holder.held_tetromino)
+        chosen_outcome = solver.decide_outcome(
+            playfield, current_tetromino, holder.held_tetromino
+        )
         playfield.execute_outcome(chosen_outcome, current_tetromino, holder)
-        playfield.print_display(holder)
+        update_display(playfield, holder)
         print(tetromino_queue)
     print("GAME OVER")
 

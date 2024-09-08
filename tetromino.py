@@ -7,17 +7,6 @@ import random
 
 class Tetromino:
 
-    # See https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit for details on ANSI escape codes used below
-    SHAPE_PRINT = [
-        " ",
-        "\033[38;5;14mI\033[m",  # I -> cyan
-        "\033[38;5;11mO\033[m",  # O -> yellow
-        "\033[38;5;13mT\033[m",  # T -> purple
-        "\033[38;5;10mS\033[m",  # S -> green
-        "\033[38;5;9mZ\033[m",  # Z -> red
-        "\033[38;5;12mJ\033[m",  # J -> blue
-        "\033[38;5;208mL\033[m",  # L -> orange
-    ]
     # Each shape stored in a cuboid grid space in the default rotation. Zero-values represent empty space and non-zero
     # values represent space filled by the shape. The non-zero numbers each correspond to the shape.
     SHAPE_GRID = {

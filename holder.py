@@ -7,7 +7,6 @@ from tetromino import Tetromino
 class Holder:
 
     HOLD_BOX_HEIGHT = 2
-    HOLD_BOX_WIDTH = 5
 
     def __init__(self, held_tetromino=None):
         # Set up held tetromino
@@ -17,21 +16,12 @@ class Holder:
 
     def __str__(self):
         print_str = []
-        # Print the top of the hold box
-        print_str.append(" ┌" + "─" * (self.HOLD_BOX_WIDTH * 2 + 1) + "┐")
-        print_str.append(" │  H O L D  │")
-        # Get the zero-padded shape and print it into the hold box
+        # Add a title
+        print_str.append("HOLD")
+        # Get the zero-padded shape as a grid string
         held_tetromino_grid = self.held_tetromino.get_zero_padded_grid()
         for row in range(self.HOLD_BOX_HEIGHT):
-            print_str.append(
-                " │  "
-                + " ".join(
-                    Tetromino.SHAPE_PRINT[x] for x in held_tetromino_grid[row, :]
-                )
-                + "  │"
-            )
-        # Print the bottom of the hold box
-        print_str.append(" └" + "─" * (self.HOLD_BOX_WIDTH * 2 + 1) + "┘")
+            print_str.append("".join(str(x) for x in held_tetromino_grid[row, :]))
 
         return "\n".join(print_str)
 

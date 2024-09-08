@@ -60,7 +60,12 @@ def get_str_in_box(input_str):
 
 
 def colourise_string(input_str):
-    return []
+    colourised_string = input_str
+    for grid_value, grid_print in enumerate(SHAPE_PRINT):
+        colourised_string = colourised_string.replace(
+            " {}".format(grid_value), " {}".format(grid_print)
+        )
+    return colourised_string
 
 
 def get_display_string(playfield):
@@ -88,8 +93,11 @@ def update_display(playfield, holder):
         )
     )
     # Print the playfield
-    print(get_str_in_box(str(playfield)))
-    print(get_str_in_box(str(holder)))
+    playfield_box = get_str_in_box(str(playfield))
+    print(colourise_string(playfield_box))
+    # Print the holder box
+    holder_box = get_str_in_box(str(holder))
+    print(colourise_string(holder_box))
 
 
 if __name__ == "__main__":

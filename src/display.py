@@ -89,7 +89,7 @@ def clear_console_display():
     print("\033c\033[3J", end="")
 
 
-def update_display(playfield, holder, tetromino_queue):
+def update_display(game):
     """
     Claer the console and print a graphical representation of the playfield.
     """
@@ -97,13 +97,13 @@ def update_display(playfield, holder, tetromino_queue):
     # Print the progress metrics
     print(
         "num blocks placed = {}, num rows cleared = {}".format(
-            playfield.num_blocks_placed, playfield.num_rows_cleared
+            game.playfield.num_blocks_placed, game.playfield.num_rows_cleared
         )
     )
     # Generate the string lists for individual elements.
-    display_str_list = get_display_element_string(playfield).split("\n")
-    holder_str_list = get_display_element_string(holder).split("\n")
-    queue_str_list = get_display_element_string(tetromino_queue).split("\n")
+    display_str_list = get_display_element_string(game.playfield).split("\n")
+    holder_str_list = get_display_element_string(game.holder).split("\n")
+    queue_str_list = get_display_element_string(game.tetromino_queue).split("\n")
 
     holder_box_length = len(holder_str_list)
     queue_box_length = len(queue_str_list)

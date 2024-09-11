@@ -101,12 +101,14 @@ class Solver:
         )
         return np.dot(score_vector, Solver.WEIGHTS_VECTOR)
 
-    def decide_outcome(self, playfield, current_tetromino, held_tetromino):
+    def decide_outcome(self, game):
         """
         Score and filter all potential outcomes to determine the best action
         to take. Return outcome that has lowest cost.
         """
-        outcomes = self.get_all_outcomes(playfield, current_tetromino, held_tetromino)
+        outcomes = self.get_all_outcomes(
+            game.playfield, game.current_tetromino, game.holder.held_tetromino
+        )
         for index, outcome in enumerate(outcomes):
             outcomes[index]["cost"] = self.get_outcome_cost(outcome)
         # Filter out any outcome that doesn't have the lowest cost
